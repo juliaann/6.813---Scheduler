@@ -1,12 +1,24 @@
 #disciplineTable{
-	width:100px
+	width:100px;
 }
 
 #disciplineTable tr{
-	vertical-align:top
+	vertical-align:top;
 }
 
 .sidebarImage{
-	height:70px;
-	width:70px
+	height:60px;
+	width:60px;
+}
+
+.month{
+	border-collapse:collapse;
+	border:3px solid black;
+	margin:0px;
+}
+
+.day{
+	padding:2px;
+	margin:0px;
+	border:1px solid black;
 }

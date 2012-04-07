@@ -43,8 +43,19 @@
             board = new Board(DEFAULT_BOARD_SIZE);
         }
 */
+        // Make the row of days of the week
+        $('.month').after('<tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>');
+
+        // For now, add five blank rows for days in December
+        for (var i = 0; i < 5; i++) {
+            $('#december').after('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+        }
+
+        // NOTE -- this dynamic row creation is not working as expected!  For now, December is entirely hard-coded :(
+
       
     });
+
 </script>
 </head>
 
@@ -53,7 +64,7 @@
 
 <!-- Sidebar is a div -- buttons, etc. in it should be the children -->
 <!-- TODO -- make it so the sidebar doesn't scroll with the rest of the screen -->
-<div id="sidebar">
+<div id="sidebarPanel">
 	<table id="disciplineTable">
         <tr>
             <th colspan=2>Select Discipline</th>
@@ -111,12 +122,23 @@
 </div>
 
 <!-- Header is a div -->
-<div id="header"></div>
+<div id="headerPanel"></div>
 
 <!-- Calendar panel is a div, containing the individual months as the children -->
-<div id="calendarpanel"></div>
+<div id="calendarPanel">
+    <table class="month" id="december"><tr><th colspan=7>DECEMBER</th></tr>
+        <tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
+<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
+<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
+<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
+<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
+<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
 
-
+</table>
+    <table class="month" id="january"><tr><th colspan=7>JANUARY</th></tr></table>
+    <table class="month" id="february"><tr><th colspan=7>FEBRUARY</th></tr></table>
+    <table class="month" id="march"><tr><th colspan=7>MARCH</th></tr></table>
+</div>
 
 </body>
 </html>
