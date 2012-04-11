@@ -1,66 +1,9 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<title>Ski School Scheduler</title>
+{% block title %} Calendar {% endblock %}
 
-<!-- Load style sheets -->
-<link rel="stylesheet" type="text/css" href="mainLayout.css" />
-
-<!-- Load any supplemental Javascript libraries here -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-
-<!-- Start the block of javascript for the page -->
-<script type="text/javascript">
-
-//This script extracts parameters from the URL -- useful for usernames, etc...(?)
-//from jquery-howto.blogspot.com
-    $.extend({
-        getUrlVars : function() {
-            var vars = [], hash;
-            var hashes = window.location.href.slice(
-                    window.location.href.indexOf('?') + 1).split('&');
-            for ( var i = 0; i < hashes.length; i++) {
-                hash = hashes[i].split('=');
-                vars.push(hash[0]);
-                vars[hash[0]] = hash[1];
-            }
-            return vars;
-        },
-        getUrlVar : function(name) {
-            return $.getUrlVars()[name];
-        }
-    });
-
-    // This allows the Javascript code inside this block to only run when the page
-    // has finished loading in the browser.
-    $(document).ready(function() {
-
-/*        if ($.getUrlVar('size') && $.getUrlVar('size') >= 6) {
-            board = new Board($.getUrlVar('size'));
-        } else {
-            board = new Board(DEFAULT_BOARD_SIZE);
-        }
-*/
-        // Make the row of days of the week
-        $('.month').after('<tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>');
-
-        // For now, add five blank rows for days in December
-        for (var i = 0; i < 5; i++) {
-            $('#december').after('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
-        }
-
-        // NOTE -- this dynamic row creation is not working as expected!  For now, December is entirely hard-coded :(
-
-      
-    });
-
-</script>
-</head>
-
+{% block content %}
 <!-- The body of the html page contains the header, the side panel, and the calendar panel -->
-<body>
 
 <!-- Sidebar is a div -- buttons, etc. in it should be the children -->
 <!-- TODO -- make it so the sidebar doesn't scroll with the rest of the screen -->
@@ -71,27 +14,27 @@
         </tr>
         <tr>
             <td>
-                <button class="sidebarButton" id="adultSki"><img img class="sidebarImage" src="images/adultSki.png"></button><br />
+                <button class="sidebarButton" id="adultSki"><img img class="sidebarImage" src="/static/images/adultSki.png"></button><br />
                 <span class="sidebarText">Adult: Ski</span>
             </td>
             <td>
-                <button class="sidebarButton" id="adultSnowboard"><img img class="sidebarImage" src="images/adultSnowboard.png"></button><br />
+                <button class="sidebarButton" id="adultSnowboard"><img img class="sidebarImage" src="/static/images/adultSnowboard.png"></button><br />
                 <span class="sidebarText">Adult: Snowboard</span>
             </td>
         </tr>
         <tr>
             <td>
-                <button class="sidebarButton" id="childrenSki"><img img class="sidebarImage" src="images/childrenSki.png"></button><br />
+                <button class="sidebarButton" id="childrenSki"><img img class="sidebarImage" src="/static/images/childrenSki.png"></button><br />
                 <span class="sidebarText">Children: Ski</span>
             </td>
             <td>
-                <button class="sidebarButton" id="childrenSnowboard"><img class="sidebarImage" src="images/childrenSnowboard.png"></button><br />
+                <button class="sidebarButton" id="childrenSnowboard"><img class="sidebarImage" src="/static/images/childrenSnowboard.png"></button><br />
                 <span class="sidebarText">Children: Snowboard</span>
             </td>
         </tr>		
         <tr>
             <td>
-                <button class="sidebarButton" id="racing"><img img class="sidebarImage" src="images/racing.png"></button><br />
+                <button class="sidebarButton" id="racing"><img img class="sidebarImage" src="/static/images/racing.png"></button><br />
                 <span class="sidebarText">Racing</span>
             </td>
         </tr>
@@ -100,11 +43,11 @@
 
         <tr>
             <td>
-                <button class="sidebarButton" id="removeShift"><img img class="sidebarImage" src="images/eraser.png"></button><br />
+                <button class="sidebarButton" id="removeShift"><img img class="sidebarImage" src="/static/images/eraser.png"></button><br />
                 <span class="sidebarText">Remove Shift</span>
             </td>
             <td>
-                <button class="sidebarButton" id="arrow"><img img class="sidebarImage" src="images/arrow.png"></button><br />
+                <button class="sidebarButton" id="arrow"><img img class="sidebarImage" src="/static/images/arrow.png"></button><br />
                 <span class="sidebarText">&nbsp;</span>
             </td>
         </tr>		
@@ -140,5 +83,4 @@
     <table class="month" id="march"><tr><th colspan=7>MARCH</th></tr></table>
 </div>
 
-</body>
-</html>
+{% endblock %}
