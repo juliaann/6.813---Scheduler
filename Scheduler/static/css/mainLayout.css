@@ -1,3 +1,8 @@
+div.container{
+	width: 100%;
+	margin:0px;
+}
+
 #disciplineTable{
 	width:100px;
 }
@@ -12,42 +17,58 @@
 	
 }
 
+
 #sidebarPanel{
 	position: fixed;
-	top: 150px;
+	top: 20%;
 	left: 0px;
 	z-index: 1;
 }
 
 #calendarPanel{
 	position: absolute;
-	top: 150px;
+	margin-top: 5%;
 	left: 150px;
+	top: 20%;
 	z-index: 1;
 }
 .month{
 	border-collapse:collapse;
 	border:3px solid black;
 	margin:0px;
+	z-index:1;
 }
 
 .day{
 	padding:2px;
 	margin:0px;
 	border:1px solid black;
+	z-index:1;
+}
+
+.header{
+	text-align: center;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 15%;
+	padding:0px;
+	margin:0px;
+	z-index:20;
 }
 
 #header_banner{
-	position:fixed;
-	top: 0px;
-	left: 0px;
+	width: 100%;
+	height: 100%;
 	z-index: 15;
 }
 
 #welcome{
-	position:fixed;
-	top: 50px;
-	left: 170px;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 5%;
 	z-index :16;
 	font-size: 40px;
 }
