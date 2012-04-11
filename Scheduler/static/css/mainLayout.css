@@ -7,10 +7,24 @@
 }
 
 .sidebarImage{
-	height:60px;
-	width:60px;
+	height:30px;
+	width:30px;
+	
 }
 
+#sidebarPanel{
+	position: fixed;
+	top: 150px;
+	left: 0px;
+	z-index: 1;
+}
+
+#calendarPanel{
+	position: absolute;
+	top: 150px;
+	left: 150px;
+	z-index: 1;
+}
 .month{
 	border-collapse:collapse;
 	border:3px solid black;
@@ -27,13 +41,13 @@
 	position:fixed;
 	top: 0px;
 	left: 0px;
-	z-index: 0;
+	z-index: 15;
 }
 
 #welcome{
 	position:fixed;
 	top: 50px;
 	left: 170px;
-	z-index :1;
+	z-index :16;
 	font-size: 40px;
 }
