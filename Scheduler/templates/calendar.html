@@ -65,7 +65,16 @@
 </div>
 
 <!-- Header is a div -->
-<div id="headerPanel"></div>
+<div id="pendingHeader">
+<h1> You must hit submit to record changes! </h1>
+{% for status, date, time, discipline in shifts %}
+	{% if status == "Pending Add" or status == "Pending Delete" %}
+		<p> {{ date }} </p>
+	{% endif %}
+
+{% endfor %} 
+
+</div>
 
 <!-- Calendar panel is a div, containing the individual months as the children -->
 <div id="calendarPanel">
