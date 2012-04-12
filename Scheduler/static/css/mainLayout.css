@@ -24,6 +24,7 @@ div.container{
 	padding-top: 1%;
 	width: 150px;
 	left: 0px;
+	height: 100%;
 	z-index: 1;
 	background-color: rgb(190,217, 239);
 }

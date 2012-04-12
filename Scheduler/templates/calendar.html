@@ -82,18 +82,29 @@
     <table class="month" id="february"><tr><th colspan=7>FEBRUARY</th></tr></table>
     <table class="month" id="march"><tr><th colspan=7>MARCH</th></tr></table>
 
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
-<div><img src="/static/images/day.png">
+
+
+<table class="my_schedule" border="1">
+	<tr>
+		<td colspan=4 align="center"> {{ instructor }} 's Schedule </td>
+	</tr>
+	<tr>
+		<th> Status </th>
+		<th> Date </th>
+		<th> Time </th>
+		<th> Discipline </th>
+	</tr>
+
+	{% for status, date, time, discipline in shifts %}
+	<tr>
+		<td> {{ status }} </td>
+		<td> {{ date }} </td>
+		<td> {{ time }} </td>
+		<td> {{ discipline }} </td>
+	</tr>
+	{% endfor %}
+
+</table>
 </div>
 
 </div>

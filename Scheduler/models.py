@@ -12,6 +12,11 @@ class Shift(models.Model):
         
     time = models.IntegerField(choices = SHIFT_TIMES)
 
+    hasAdultSki = models.BooleanField()
+    hasAdultBoard = models.BooleanField()
+    hasChildrensSki = models.BooleanField()
+    hasChildrensBoard = models.BooleanField()
+    hasRace = models.BooleanField()
 
     
     def __unicode__(self):
@@ -31,3 +36,13 @@ class ScheduledShifts(models.Model):
     )
 
     status = models.IntegerField(choices = SHIFT_STATUS)
+
+    DISCIPLINE = (
+        (0, u'AdultSki'),
+        (1, u'AdultBoard'),
+        (2, u'ChildrensSki'),
+        (3, u'ChildrensBoard'),
+        (4, u'Race'),
+    )
+
+    discipline = models.IntegerField(choices = DISCIPLINE)

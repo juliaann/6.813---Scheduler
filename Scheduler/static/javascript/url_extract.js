@@ -1,4 +1,9 @@
- : function() {
+
+//This script extracts parameters from the URL -- useful for usernames, etc...(?)
+//from jquery-howto.blogspot.com
+
+$.extend({
+ getURlVars: function() {
             var vars = [], hash;
             var hashes = window.location.href.slice(
                     window.location.href.indexOf('?') + 1).split('&');
