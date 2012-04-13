@@ -45,8 +45,14 @@ def index(request):
     
 
 def view_calendar(request):
-    print request
-    instr = User.objects.get(username = request.session['username'])
+    try:
+        instr = User.objects.get(username = request.session['username'])
+    except:
+        return render_to_response('index.html', {'instructor': None,
+                                                 'is_logged_in': "False",
+                                                 'error': 'Please login'},
+                                  context_instance=RequestContext(request))
+
     instr_name = instr.first_name + instr.last_name
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
     my_shifts = []
