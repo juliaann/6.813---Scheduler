@@ -67,12 +67,22 @@
 <!-- Header is a div -->
 <div id="pendingHeader">
 <h1> You must hit submit to record changes! </h1>
-{% for status, date, time, discipline in shifts %}
-	{% if status == "Pending Add" or status == "Pending Delete" %}
-		<p> {{ date }} </p>
-	{% endif %}
-
-{% endfor %} 
+{% if pending_changes != None %}
+	<table class="pendingChanges">
+		<tr>
+			<th></th>
+			<th class="acceptColumn">Accept</th>
+			<th class="rejectColum">Reject</th>
+		</tr>
+		{% for status, date, time, discipline, cnt in pending_changes %}
+			<tr>
+				<td> {{discipline }} {{ time }} on {{ date }} is {{ status }}</td>
+				<td class="acceptColumn"><input type="radio" name= {{ cnt }} value="Accept"></td>
+				<td class="rejectColumn"><input type="radio" name= {{ cnt }} value="Reject"></td>
+			<tr>
+		{% endfor %}
+	</table>
+{% endif %}
 
 </div>
 

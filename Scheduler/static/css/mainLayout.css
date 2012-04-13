@@ -87,3 +87,13 @@ div.container{
 	z-index :16;
 	font-size: 40px;
 }
+
+.acceptColumn{
+	width: 100px;
+	text-align: center;
+}
+
+.rejectColumn{
+	width: 100px;
+	text-align: center;
+}

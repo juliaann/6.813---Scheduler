@@ -9,19 +9,25 @@ def index(request):
 def view_calendar(request):
     instr = User.objects.get(username = 'admin')
     instr_name = instr.first_name + instr.last_name
-    print instr_name
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
-    print shifts
     my_shifts = []
+    pending_changes = []
+    cnt = 0
     for s in shifts:
         shift_status = get_human_readable_status(s.status)
         shift_time = get_human_readable_time(s.shift.all()[0].time)
         shift_discipline = get_human_readable_discipline(s.discipline)
-        my_shifts+=[[shift_status, s.shift.all()[0].date, shift_time, shift_discipline]]
-    print my_shifts
+        my_shifts.append([shift_status, s.shift.all()[0].date, shift_time, shift_discipline])
+        if s.status == 1 or s.status == 2:
+            pending_changes.append([shift_status, s.shift.all()[0].date, shift_time, shift_discipline, cnt])
+            cnt += 1
+    if len(pending_changes) == 0:
+        pending_changes = None
+    print pending_changes
     return render_to_response('calendar.html',
                               {'instructor': instr_name,
-                               'shifts': my_shifts},
+                               'shifts': my_shifts,
+                              'pending_changes' : pending_changes},
                               context_instance=RequestContext(request))
 
 def get_human_readable_time(shift_num):
