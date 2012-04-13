@@ -20,7 +20,7 @@ div.container{
 
 #sidebarPanel{
 	position: fixed;
-	top: 70px;
+	top: 90px;
 	padding-top: 1%;
 	width: 150px;
 	left: 0px;
@@ -31,7 +31,7 @@ div.container{
 
 #pendingHeader{
 	position: fixed;
-	top: 70px;
+	top: 90px;
 	left: 150px;
 	z-index:20;
 	margin: 0px;
@@ -66,25 +66,33 @@ div.container{
 	top: 0px;
 	left: 0px;
 	width: 100%;
-	height: 70px;
+	height: 90px;
 	padding:0px;
 	margin:0px;
 	z-index:20;
+	background-color: rgb(190,217, 239);
+}
+
+#navigationBar{
+	position: fixed;
+	top: 50px;
+	background-color: rgb(190,217, 239);
+	z-index:21;
 }
 
 #login_form{
 	position: absolute;
-	top: 100px;
+	top: 120px;
 }
 
 .message{
 	position: absolute;
-	top: 80px;
+	top: 100px;
 }
 
 #header_banner{
 	width: 100%;
-	height: 100%;
+	height: 50px;
 	z-index: 15;
 }
 
@@ -108,3 +116,14 @@ div.container{
 }
 
 
+ul{
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+
+li{
+	float:left;
+	padding: 10px;
+}
+}

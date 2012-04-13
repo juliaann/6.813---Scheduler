@@ -1,12 +1,11 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from models import *
 import populateShifts
 
 
 def index(request):
-    print request.method
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -17,7 +16,7 @@ def index(request):
                 request.session['username'] = user.username
                 instr = User.objects.get(username = 'admin')
                 instr_name = instr.first_name + instr.last_name
-                return render_to_response('index.html', {'instructor': instr_name,
+                return render_to_response('index.html', {'instructor': request.session['username'],
                                                          'is_logged_in': "True",
                                                          'error': None},
                                           context_instance=RequestContext(request))
@@ -42,6 +41,18 @@ def index(request):
                                                  'is_logged_in': "False",
                                                  'error': 'Please login'},
                                   context_instance=RequestContext(request))
+
+def logout(request):
+    #user = User.objects.get(username = request.session['username'])
+    #logout(request)
+    del request.session['username']
+    return render_to_response('index.html', {'instructor': None,
+                                             'is_logged_in': "False",
+                                             'error': 'Please login'},
+                              context_instance=RequestContext(request))
+
+
+    
         
     
 
