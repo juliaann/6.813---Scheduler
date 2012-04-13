@@ -3,9 +3,26 @@
 {% block title %} Home {% endblock %}
 
 {% block content %}
+<div> {{ error }} </div>
+{% if is_logged_in == "False" %}
+	{% if error == "Please login" %}
+		<div class="message"> {{ error }} </div>
+	{% endif %}
+	<form id="login_form" action="/" method="post">
+	<label for="username">Username</label>
+	<input type="text" name="username" value="" id="username" >
+	<label for="password">Password</label>
+	<input type="password" name="password" value="" id="password" >
+	<input type="submit" value="login" />
 
-<div>This is the home page</div>
-
+	</form>
+	{% if error != "Please login" %}
+		<div class="message"> {{ error }} </div>
+	{% endif %}
+{% else %}
+	<div class="message"> Welcome {{ instructor }} </div> 
+{% endif %}
+	
 {% endblock %}
 
 

@@ -1,13 +1,52 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.contrib.auth import authenticate, login
 from models import *
 
 
 def index(request):
-    return render_to_response('index.html')
+    print request.method
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                request.session['username'] = user.username
+                instr = User.objects.get(username = 'admin')
+                instr_name = instr.first_name + instr.last_name
+                return render_to_response('index.html', {'instructor': instr_name,
+                                                         'is_logged_in': "True",
+                                                         'error': None},
+                                          context_instance=RequestContext(request))
+            else:
+                return render_to_response('index.html', {'instructor': None,
+                                                        'is_logged_in': "False",
+                                                        'error': 'Invalid Username'},
+                                          context_instance=RequestContext(request))
+        else:
+            return render_to_response('index.html', {'instructor': None,
+                                                     'is_logged_in': "False",
+                                                     'error': 'Invalid Password'},
+                                      context_instance=RequestContext(request))
+    try:
+        request.session['username']
+        return render_to_response('index.html', {'instructor': request.session['username'],
+                                                 'is_logged_in': "True",
+                                                 'error': None},
+                                  context_instance=RequestContext(request))
+    except:
+        return render_to_response('index.html', {'instructor': None,
+                                                 'is_logged_in': "False",
+                                                 'error': 'Please login'},
+                                  context_instance=RequestContext(request))
+        
+    
 
 def view_calendar(request):
-    instr = User.objects.get(username = 'admin')
+    print request
+    instr = User.objects.get(username = request.session['username'])
     instr_name = instr.first_name + instr.last_name
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
     my_shifts = []
