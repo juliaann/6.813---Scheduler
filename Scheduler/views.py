@@ -54,6 +54,11 @@ def view_calendar(request):
                                   context_instance=RequestContext(request))
 
     instr_name = instr.first_name + instr.last_name
+    print instr.groups.all()[0].name
+    if instr.groups.all()[0].name == "Admin":
+        isAdmin = "True"
+    else:
+        isAdmin = "False"
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
     my_shifts = []
     pending_changes = []
@@ -68,9 +73,9 @@ def view_calendar(request):
             cnt += 1
     if len(pending_changes) == 0:
         pending_changes = None
-    print pending_changes
     return render_to_response('calendar.html',
                               {'instructor': instr_name,
+                               'isAdmin': isAdmin,
                                'shifts': my_shifts,
                               'pending_changes' : pending_changes},
                               context_instance=RequestContext(request))

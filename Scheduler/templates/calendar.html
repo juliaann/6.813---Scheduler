@@ -71,14 +71,18 @@
 	<table class="pendingChanges">
 		<tr>
 			<th></th>
-			<th class="acceptColumn">Accept</th>
-			<th class="rejectColum">Reject</th>
+			{% if isAdmin == "True" %}
+				<th class="acceptColumn">Accept</th>
+				<th class="rejectColum">Reject</th>
+			{% endif %}
 		</tr>
 		{% for status, date, time, discipline, cnt in pending_changes %}
 			<tr>
 				<td> {{discipline }} {{ time }} on {{ date }} is {{ status }}</td>
-				<td class="acceptColumn"><input type="radio" name= {{ cnt }} value="Accept"></td>
-				<td class="rejectColumn"><input type="radio" name= {{ cnt }} value="Reject"></td>
+				{% if isAdmin == "True" %}
+					<td class="acceptColumn"><input type="radio" name= {{ cnt }} value="Accept"></td>
+					<td class="rejectColumn"><input type="radio" name= {{ cnt }} value="Reject"></td>
+				{% endif %}
 			<tr>
 		{% endfor %}
 	</table>
