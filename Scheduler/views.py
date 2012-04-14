@@ -128,7 +128,7 @@ def view_calendar(request, instr=None):
     if len(pending_changes) == 0:
         pending_changes = None
     
-	dec_offset_start = []
+    dec_offset_start = []
     jan_offset_start = []
     feb_offset_start = []
     mar_offset_start = []
@@ -155,7 +155,22 @@ def view_calendar(request, instr=None):
             elif start_date.month == 3:
                 feb_offset_end = range(7 - ((start_date.weekday() + 1) % 7))
                 mar_offset_start = range((start_date.weekday() + 1) % 7)
-        all_dates.append(start_date)
+        today = []
+        
+        today.append(start_date)
+        if len(list(Shift.objects.filter(date = start_date, time = 0))) != 0:
+            today.append(True)
+        else:
+            today.append(False)
+        if len(list(Shift.objects.filter(date = start_date, time = 1))) != 0:
+            today.append(True)
+        else:
+            today.append(False)
+        if len(list(Shift.objects.filter(date = start_date, time = 2))) != 0:
+            today.append(True)
+        else:
+            today.append(False)
+        all_dates.append(today)
         start_date += datetime.timedelta(1);
     mar_offset_end = range(7 - ((start_date.weekday() + 1) % 7))
     

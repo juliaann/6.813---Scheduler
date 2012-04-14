@@ -17,6 +17,11 @@ div.container{
 	
 }
 
+.calendarImage{
+	height:30px;
+	width:30px;
+	
+}
 
 #sidebarPanel{
 	position: fixed;
