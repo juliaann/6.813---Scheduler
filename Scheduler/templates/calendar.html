@@ -6,7 +6,6 @@
 <!-- The body of the html page contains the header, the side panel, and the calendar panel -->
 
 <!-- Sidebar is a div -- buttons, etc. in it should be the children -->
-<!-- TODO -- make it so the sidebar doesn't scroll with the rest of the screen -->
 <div id="sidebarPanel">
 	<table id="disciplineTable">
         <tr>
@@ -92,44 +91,122 @@
 
 <!-- Calendar panel is a div, containing the individual months as the children -->
 <div id="calendarPanel">
-    <table class="month" id="december"><tr><th colspan=7>DECEMBER</th></tr>
-        <tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
-<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
-<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
-<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
-<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
-<tr><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td><td class="day">&nbsp;</td></tr>
+	{% for date in all_dates %}
+		{% if date.month == 12 %}
+			{% if date.day == 1 %}
+				<table class="month" id="december">
+					<tr><th colspan=7>DECEMBER</th></tr>
+					<tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
+					<tr>
+					{% for i in dec_offset_start %}
+						<td class="day">&nbsp </td>
+					{% endfor %}
+					
+			{% endif %}
+			<td class = "day">{{date.day}}</td>
+			{% if date.weekday == 5 %}
+			</tr>
+			<tr>
+			{% endif %}
+		{% endif %}
 
-</table>
-    <table class="month" id="january"><tr><th colspan=7>JANUARY</th></tr></table>
-    <table class="month" id="february"><tr><th colspan=7>FEBRUARY</th></tr></table>
-    <table class="month" id="march"><tr><th colspan=7>MARCH</th></tr></table>
+		{% if date.month == 1 %}
+			{% if date.day == 1 %}
+				{% for i in dec_offset_end %}
+					<td class="day">&nbsp </td>
+				{% endfor %}
+				</tr>
+				</table>
+				<table class="month" id="january">
+					<tr><th colspan=7>JANUARY</th></tr>
+					<tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
+					<tr>
+					{% for i in jan_offset_start %}
+						<td class="day">&nbsp </td>
+					{% endfor %}
+					
+			{% endif %}
+			<td class = "day">{{date.day}}</td>
+			{% if date.weekday == 5 %}
+			</tr>
+			<tr>
+			{% endif %}
+		{% endif %}
+		
+		{% if date.month == 2 %}
+			{% if date.day == 1 %}
+				{% for i in jan_offset_end %}
+					<td class="day">&nbsp </td>
+				{% endfor %}
+				</tr>
+				</table>
+				<table class="month" id="february">
+					<tr><th colspan=7>FEBRUARY</th></tr>
+					<tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
+					<tr>
+					{% for i in feb_offset_start %}
+						<td class="day">&nbsp </td>
+					{% endfor %}
+					
+			{% endif %}
+			<td class = "day">{{date.day}}</td>
+			{% if date.weekday == 5 %}
+			</tr>
+			<tr>
+			{% endif %}
+		{% endif %}
 
-
-
-<table class="my_schedule" border="1">
-	<tr>
-		<td colspan=4 align="center"> {{ instructor }} 's Schedule </td>
-	</tr>
-	<tr>
-		<th> Status </th>
-		<th> Date </th>
-		<th> Time </th>
-		<th> Discipline </th>
-	</tr>
-
-	{% for status, date, time, discipline in shifts %}
-	<tr>
-		<td> {{ status }} </td>
-		<td> {{ date }} </td>
-		<td> {{ time }} </td>
-		<td> {{ discipline }} </td>
-	</tr>
+		{% if date.month == 3 %}
+			{% if date.day == 1 %}
+				{% for i in feb_offset_end %}
+					<td class="day">&nbsp </td>
+				{% endfor %}
+				</tr>
+				</table>
+				<table class="month" id="march">
+					<tr><th colspan=7>MARCH</th></tr>
+					<tr><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
+					<tr>
+					{% for i in mar_offset_start %}
+						<td class="day">&nbsp </td>
+					{% endfor %}
+					
+			{% endif %}
+			<td class = "day">{{date.day}}</td>
+			{% if date.weekday == 5 %}
+			</tr>
+			<tr>
+			{% endif %}
+		{% endif %}
 	{% endfor %}
+	{% for i in mar_offset_end %}
+		<td class="day">&nbsp </td>
+	{% endfor %}
+	</tr>
+	</table>
 
-</table>
-</div>
 
+	<table class="my_schedule" border="1">
+		<tr>
+			<td colspan=4 align="center"> {{ instructor }} 's Schedule </td>
+		</tr>
+		<tr>
+			<th> Status </th>
+			<th> Date </th>
+			<th> Time </th>
+			<th> Discipline </th>
+		</tr>
+
+		{% for status, date, time, discipline in shifts %}
+		<tr>
+			<td> {{ status }} </td>
+			<td> {{ date.weekday }} </td>
+			<td> {{ time }} </td>
+			<td> {{ discipline }} </td>
+		</tr>
+		{% endfor %}
+
+	</table>
 </div>
 
 {% endblock %}

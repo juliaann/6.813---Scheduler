@@ -3,6 +3,7 @@ from django.template import RequestContext
 from django.contrib.auth import authenticate, login, logout
 from models import *
 import populateShifts
+import datetime
 
 
 def index(request):
@@ -88,11 +89,52 @@ def view_calendar(request):
             cnt += 1
     if len(pending_changes) == 0:
         pending_changes = None
+    
+	dec_offset_start = []
+    jan_offset_start = []
+    feb_offset_start = []
+    mar_offset_start = []
+    dec_offset_end = []
+    jan_offset_end = []
+    feb_offset_end = []
+    mar_offset_end = []
+    all_dates = []
+    current_year = datetime.datetime.now().year
+    if datetime.datetime.now().month > 8:
+        current_year += 1
+    start_date = datetime.date(current_year, 12, 1)
+    end_date = datetime.date(current_year + 1, 3, 31)
+    while start_date <= end_date:
+        if start_date.day == 1:
+            if start_date.month == 12:
+                dec_offset_start = range((start_date.weekday() + 1) % 7)
+            elif start_date.month == 1:
+                dec_offset_end = range(7 - ((start_date.weekday() + 1) % 7))
+                jan_offset_start = range((start_date.weekday() + 1) % 7)
+            elif start_date.month == 2:
+                jan_offset_end = range(7 - ((start_date.weekday() + 1) % 7))
+                feb_offset_start = range((start_date.weekday() + 1) % 7)
+            elif start_date.month == 3:
+                feb_offset_end = range(7 - ((start_date.weekday() + 1) % 7))
+                mar_offset_start = range((start_date.weekday() + 1) % 7)
+        all_dates.append(start_date)
+        start_date += datetime.timedelta(1);
+    mar_offset_end = range(7 - ((start_date.weekday() + 1) % 7))
+    
     return render_to_response('calendar.html',
                               {'instructor': instr_name,
                                'isAdmin': isAdmin,
                                'shifts': my_shifts,
-                              'pending_changes' : pending_changes},
+                              'pending_changes' : pending_changes,
+                               'all_dates': all_dates,
+                               'dec_offset_start': dec_offset_start,
+                               'jan_offset_start': jan_offset_start,
+                               'feb_offset_start': feb_offset_start,
+                               'mar_offset_start': mar_offset_start,
+                               'dec_offset_end': dec_offset_end,
+                               'jan_offset_end': jan_offset_end,
+                               'feb_offset_end': feb_offset_end,
+                               'mar_offset_end': mar_offset_end},
                               context_instance=RequestContext(request))
 
 def get_human_readable_time(shift_num):
