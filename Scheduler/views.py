@@ -45,7 +45,10 @@ def index(request):
 def logout(request):
     #user = User.objects.get(username = request.session['username'])
     #logout(request)
-    del request.session['username']
+    try:
+        del request.session['username']
+    except:
+        pass
     return render_to_response('index.html', {'instructor': None,
                                              'is_logged_in': "False",
                                              'error': 'Please login'},
