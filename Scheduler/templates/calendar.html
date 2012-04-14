@@ -91,7 +91,7 @@
 
 <!-- Calendar panel is a div, containing the individual months as the children -->
 <div id="calendarPanel">
-	{% for date in all_dates %}
+	{% for date, morning, evening, night in all_dates %}
 		{% if date.month == 12 %}
 			{% if date.day == 1 %}
 				<table class="month" id="december">
@@ -103,7 +103,18 @@
 					{% endfor %}
 					
 			{% endif %}
-			<td class = "day">{{date.day}}</td>
+			<td class = "day">
+				{{date.day}} </br>
+				{% if morning %}
+					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+				{% endif %}
+				{% if evening %}
+					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+				{% endif %}
+				{% if night %}
+					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+				{% endif %}
+			</td>
 			{% if date.weekday == 5 %}
 			</tr>
 			<tr>
@@ -126,7 +137,18 @@
 					{% endfor %}
 					
 			{% endif %}
-			<td class = "day">{{date.day}}</td>
+			<td class = "day">
+				{{date.day}} </br>
+				{% if morning %}
+					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+				{% endif %}
+				{% if evening %}
+					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+				{% endif %}
+				{% if night %}
+					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+				{% endif %}
+			</td>
 			{% if date.weekday == 5 %}
 			</tr>
 			<tr>
@@ -149,7 +171,18 @@
 					{% endfor %}
 					
 			{% endif %}
-			<td class = "day">{{date.day}}</td>
+			<td class = "day">
+				{{date.day}} </br>
+				{% if morning %}
+					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+				{% endif %}
+				{% if evening %}
+					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+				{% endif %}
+				{% if night %}
+					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+				{% endif %}
+			</td>
 			{% if date.weekday == 5 %}
 			</tr>
 			<tr>
@@ -172,7 +205,18 @@
 					{% endfor %}
 					
 			{% endif %}
-			<td class = "day">{{date.day}}</td>
+			<td class = "day">
+				{{date.day}} </br>
+				{% if morning %}
+					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+				{% endif %}
+				{% if evening %}
+					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+				{% endif %}
+				{% if night %}
+					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+				{% endif %}
+			</td>
 			{% if date.weekday == 5 %}
 			</tr>
 			<tr>
@@ -200,7 +244,7 @@
 		{% for status, date, time, discipline in shifts %}
 		<tr>
 			<td> {{ status }} </td>
-			<td> {{ date.weekday }} </td>
+			<td> {{ date }} </td>
 			<td> {{ time }} </td>
 			<td> {{ discipline }} </td>
 		</tr>
