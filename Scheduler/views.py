@@ -6,17 +6,27 @@ import populateShifts
 
 
 def index(request):
+    print request.method
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
+                if user.groups.all()[0].name == "Admin":
+                    isAdmin = "True"
+                    allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
+                else:
+                    isAdmin = "False"
+                    allInstr = [[user.username, user.first_name + " " + user.last_name]]
+                                    
                 login(request, user)
                 request.session['username'] = user.username
                 instr = User.objects.get(username = 'admin')
                 instr_name = instr.first_name + instr.last_name
                 return render_to_response('index.html', {'instructor': request.session['username'],
+                                                         'isAdmin': isAdmin,
+                                                         'allInstr': allInstr,
                                                          'is_logged_in': "True",
                                                          'error': None},
                                           context_instance=RequestContext(request))
@@ -32,19 +42,34 @@ def index(request):
                                       context_instance=RequestContext(request))
     try:
         request.session['username']
-        return render_to_response('index.html', {'instructor': request.session['username'],
-                                                 'is_logged_in': "True",
-                                                 'error': None},
-                                  context_instance=RequestContext(request))
+        print request.session['username']
     except:
+        print "not logged in"
         return render_to_response('index.html', {'instructor': None,
                                                  'is_logged_in': "False",
                                                  'error': 'Please login'},
                                   context_instance=RequestContext(request))
 
+    user = User.objects.get(username = request.session['username'])
+
+    if user.groups.all()[0].name == "Admin":
+        isAdmin = "True"
+        allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
+    else:
+        isAdmin = "False"
+        allInstr = [[user.username, user.first_name + " " + user.last_name]]
+            
+    return render_to_response('index.html', {'instructor': request.session['username'],
+                                         'isAdmin': isAdmin,
+                                         'allInstr': allInstr,
+                                         'is_logged_in': "True",
+                                         'error': None},
+                          context_instance=RequestContext(request))
+
 def logout(request):
     #user = User.objects.get(username = request.session['username'])
     #logout(request)
+    print 'in logout'
     try:
         del request.session['username']
     except:
@@ -59,9 +84,13 @@ def logout(request):
         
     
 
-def view_calendar(request):
+def view_calendar(request, instr=None):
     try:
-        instr = User.objects.get(username = request.session['username'])
+        logged_in = User.objects.get(username = request.session['username'])
+        if instr == None:
+            instr = logged_in
+        else:
+            instr = User.objects.get(username = instr)
     except:
         return render_to_response('index.html', {'instructor': None,
                                                  'is_logged_in': "False",
@@ -69,11 +98,20 @@ def view_calendar(request):
                                   context_instance=RequestContext(request))
 
     instr_name = instr.first_name + instr.last_name
-    print instr.groups.all()[0].name
-    if instr.groups.all()[0].name == "Admin":
+    if logged_in.groups.all()[0].name == "Admin":
         isAdmin = "True"
     else:
         isAdmin = "False"
+        if request.session['username'] != instr.username:
+            print "authError"
+            user = User.objects.get(username = request.session['username'])
+            allInstr = [[user.username, user.first_name + " " + user.last_name]]
+            return render_to_response('index.html', {'instructor': request.session['username'],
+                                         'isAdmin': isAdmin,
+                                         'allInstr': allInstr,
+                                         'is_logged_in': "True",
+                                         'error': "authorizationDenied"},
+                                      context_instance=RequestContext(request))
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
     my_shifts = []
     pending_changes = []

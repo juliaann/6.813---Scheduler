@@ -3,7 +3,6 @@
 {% block title %} Home {% endblock %}
 
 {% block content %}
-<div> {{ error }} </div>
 {% if is_logged_in == "False" %}
 	{% if error == "Please login" %}
 		<div class="message"> {{ error }} </div>
@@ -21,7 +20,23 @@
 	{% endif %}
 {% else %}
 	<div class="message"> Welcome {{ instructor }} </div> 
+	{% if error == "authorizationDenied" %}
+	<div id="authError">You do not have authorization to view that page! </div>
+	{% endif %}
+	{% if isAdmin == "True" %}
+		<div class="calToView">
+		<p id="message2"> Click on the instructor's name to view his/her schedule </p>
+		<br>
+		<br><p>
+		{% for username, name in allInstr %}
+		<a href="/calendar/{{ username }}">{{ name }}</a>
+		<br>
+		{% endfor %}
+		</p>
+	{% endif %}
+	</div>
 {% endif %}
+
 	
 {% endblock %}
 

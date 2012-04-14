@@ -90,6 +90,11 @@ div.container{
 	top: 100px;
 }
 
+#authError{
+	position: absolute;
+	top: 120px;
+}
+
 #header_banner{
 	width: 100%;
 	height: 50px;
@@ -126,4 +131,14 @@ li{
 	float:left;
 	padding: 10px;
 }
+
+.calToView { 
+	position: absolute;
+	top: 150px;
+	width: 100%
+}
+
+#message2{
+	position: absolute;
+	top: 0px;
 }

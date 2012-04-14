@@ -22,5 +22,6 @@ urlpatterns = patterns('',
 
     #Calander page
     (r'^calendar/$', views.view_calendar),
+    (r'^calendar/(?P<instr>\w+)/$', views.view_calendar),
     (r'^logout/$', views.logout)
 )
