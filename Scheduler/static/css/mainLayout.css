@@ -23,6 +23,22 @@ div.container{
 	
 }
 
+.blank{
+	height: 37px;
+	width: 46;
+	padding: 2px 6px 3px;
+	border: 2px;
+	
+}
+
+.shiftButtons{
+	text-align: left;
+}
+
+.dayOfWeek{
+	text-align: center;
+}
+
 #sidebarPanel{
 	position: fixed;
 	top: 90px;
@@ -64,7 +80,14 @@ div.container{
 	margin:0px;
 	border:1px solid black;
 	z-index:1;
+	width: 164px;
+	height:64px;
+	top:0px;
+	vertical-align: text-top;
+	text-align: right;
+	
 }
+
 
 #header{
 	text-align: center;
