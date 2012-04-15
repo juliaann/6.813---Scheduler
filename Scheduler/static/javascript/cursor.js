@@ -1,3 +1,7 @@
+// Useful global variables for updating the calendar view via user mouse clicks
+var cursorImage = "";
+var imagePath = "/static/images/";
+
 // Add the click listener to each sidebar button
 $(document).ready(function() {
 
@@ -35,7 +39,50 @@ $(document).ready(function() {
     if (arrow.addEventListener) {
         arrow.addEventListener('click', sidebarButtonClicked, false);
     }
+
+    // Play with 12/23 morning/evening/night 
+    var day = document.getElementById('2012-12-23morning');
+    if (day.addEventListener) {
+        day.addEventListener('click', shiftClicked, false);
+    }
+    var evening = document.getElementById('2012-12-23evening');
+    if (evening.addEventListener) {
+        evening.addEventListener('click', shiftClicked, false);
+    }
+    var night = document.getElementById('2012-12-23night');
+    if (night.addEventListener) {
+        night.addEventListener('click', shiftClicked, false);
+    }
 });
+
+// Given an element id and an image, sets the image src in the innerHTML
+function setShiftImage(id, image) {
+    var shiftButton = document.getElementById(id);
+    shiftButton.innerHTML = '<img class="calendarImage" src="' + image + '">';
+}
+
+// Uses the current cursor to change the image for the shift
+function shiftClicked(e) {
+
+    // If the cursor is the eraser, remove the shift
+    if (cursorImage == imagePath + "eraser.png") {
+        if (this.id.indexOf("morning") != -1) {
+            var image = imagePath + "day.png";
+            setShiftImage(this.id, image);
+        } else if (this.id.indexOf("evening") != -1) {
+            var image = imagePath + "evening.png";
+            setShiftImage(this.id, image);
+        } else if (this.id.indexOf("night") != -1) {
+            var image = imagePath + "night.png";
+            setShiftImage(this.id, image);
+        }
+    }
+
+    // Otherwise, if it's a valid discipline, set the shift icon
+    else if (cursorImage != "") {
+        setShiftImage(this.id, cursorImage);
+    }
+}
 
 // It's not pretty, but it works.  I will keep trying to make it more 
 // streamlined as I learn more.
@@ -43,22 +90,27 @@ function sidebarButtonClicked(e) {
     // Get the image for the button that was pressed to use as the cursor
     var otherStyle = "";
     if (this.id == "adultSki") {
-        otherStyle = "/static/images/adultSki.png";
+        otherStyle = imagePath + "adultSki.png";
     } else if (this.id == "adultSnowboard") {
-        otherStyle = "/static/images/adultSnowboard.png";
+        otherStyle = imagePath + "adultSnowboard.png";
     } else if (this.id == "childrenSki") {
-        otherStyle = "/static/images/childrenSki.png";
+        otherStyle = imagePath + "childrenSki.png";
     } else if (this.id == "childrenSnowboard") {
-        otherStyle = "/static/images/childrenSnowboard.png";
+        otherStyle = imagePath + "childrenSnowboard.png";
     } else if (this.id == "racing") {
-        otherStyle = "/static/images/racing.png";
+        otherStyle = imagePath + "racing.png";
     } else if (this.id == "removeShift") {
-        otherStyle = "/static/images/eraser.png";
+        otherStyle = imagePath + "eraser.png";
     }
-    var cursorStyle = "url(" + otherStyle + "), auto";
+    // Specify the "hot spot" for the cursor (i.e. the center) as the point
+    // (32,32) in the image (might not work in IE)
+    var cursorStyle = "url(" + otherStyle + ") 32 32, auto";
+    cursorImage = otherStyle;
 
     // If the arrow button was clicked, just clear the cursor instead
-    if (this.id == "arrow") { cursorStyle = "auto"; }
+    if (this.id == "arrow") { 
+        cursorStyle = "auto";
+        cursorImage = ""; }
 
     // Update the body cursor style
     document.body.style.cursor = cursorStyle;
