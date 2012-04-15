@@ -91,8 +91,18 @@ $(document).ready(function() {
 
 // Given an element id and an image, sets the image src in the innerHTML
 function setShiftImage(id, image) {
+    // Set the image
     var b = document.getElementById(id);
     b.innerHTML = '<img class="calendarImage" src="' + image + '">';
+
+    // Change the button class to get the background color
+    if (b.id.indexOf("morning") != -1) {
+        b.className = "dayButton";
+    } else if (b.id.indexOf("evening") != -1) {
+        b.className = "eveningButton";
+    } else if (b.id.indexOf("night") != -1) {
+        b.className = "nightButton";
+    }
 }
 
 // Given an element id and an image, sets the overlay (absent/excused) image
@@ -128,6 +138,7 @@ function shiftClicked(e) {
             var image = imagePath + "night.png";
             setShiftImage(this.id, image);
         }
+        this.className = "defaultButton";
     }
 
     // If it's excused add that image to the button as an overlay
