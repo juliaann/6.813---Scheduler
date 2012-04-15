@@ -10,6 +10,14 @@ function addSidebarClickListener(id) {
     }
 }
 
+// Adds a click listener to the shift button specified by id
+function addShiftClickListener(id) {
+    var button = document.getElementById(id);
+    if (button.addEventListener) {
+        button.addEventListener('click', shiftClicked, false);
+    }
+}
+
 // Add the click listener to each sidebar button
 $(document).ready(function() {
 
@@ -29,19 +37,56 @@ $(document).ready(function() {
         addSidebarClickListener('absentCancel'); 
     } catch (err) { }
 
-    // Play with 12/23 morning/evening/night 
-    var day = document.getElementById('2012-12-23morning');
-    if (day.addEventListener) {
-        day.addEventListener('click', shiftClicked, false);
+    // Add click listeners to the shift button -- will clean up later
+    // December
+    var month = 12;
+    for (var day = 1; day <= 31; day++) {
+        var date = "2012-" + month + "-" + day;
+
+        if (day < 10) {
+            date = "2012-" + month + "-0" + day;
+        }
+        
+        // Morning
+        try {  
+            addShiftClickListener(date + "morning");
+        } catch(err) { }
+     
+        // Evening
+        try {
+            addShiftClickListener(date + "evening");
+        } catch(err) { }
+
+        // Night
+        try {
+            addShiftClickListener(date + "night");
+        } catch(err) { }  
     }
-    var evening = document.getElementById('2012-12-23evening');
-    if (evening.addEventListener) {
-        evening.addEventListener('click', shiftClicked, false);
-    }
-    var night = document.getElementById('2012-12-23night');
-    if (night.addEventListener) {
-        night.addEventListener('click', shiftClicked, false);
-    }
+ 
+    // January - March
+    for (var month = 1; month <= 3; month++) {
+        for (var day = 1; day <= 31; day++) {
+            var date = "2013-0" + month + "-" + day;
+            if (day < 10) {
+                date = "2013-0" + month + "-0" + day;
+            }
+        
+            // Morning
+            try {  
+                addShiftClickListener(date + "morning");
+            } catch(err) { }
+         
+            // Evening
+            try {
+                addShiftClickListener(date + "evening");
+            } catch(err) { }
+
+            // Night
+            try {
+                addShiftClickListener(date + "night");
+            } catch(err) { }  
+        }
+    } 
 });
 
 // Given an element id and an image, sets the image src in the innerHTML
