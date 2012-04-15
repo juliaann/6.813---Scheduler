@@ -43,13 +43,12 @@ div.container{
 .blank{
 	height: 37px;
 	width: 46;
-	padding: 2px 6px 3px;
-	border: 2px;
 	
 }
 
 .shiftButtons{
 	text-align: left;
+	vertical-align: top;
 }
 
 .dayOfWeek{
