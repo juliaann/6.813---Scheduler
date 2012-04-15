@@ -27,7 +27,7 @@ $(document).ready(function() {
     addSidebarClickListener('childrenSnowboard');
     addSidebarClickListener('racing');
 
-    addSidebarClickListener('removeShift');
+    addSidebarClickListener('eraser');
     addSidebarClickListener('arrow');
   
     try {
@@ -57,7 +57,24 @@ $(document).ready(function() {
             }
         }
     }
+/*
+    // Add click listeners to the radio buttons (pending changes for admin)
+    var pendingChangesTable = document.getElementById("pendingChanges");
+    var rows = pendingChangesTable.rows;
+    var count = 0;
+    for (var i = 1; i < rows.length; i++) { // skip header row
+        var cells = rows[i].cells;
+        var msg = cells[0].innerHTML;
+        var acceptButton = cells[1].firstChild;
+        var rejectButton = cells[2].firstChild;
+        acceptButton.addEventListener('click', sidebarButtonClicked, false)
+    } */
 });
+
+function radioButtonClicked(e) {
+    b = document.getElementById("2012-12-16morning");
+    setShiftImage(b, imagePath + "eraser.png");
+}
 
 // Given an element id and an image, sets the image src in the innerHTML
 function setShiftImage(id, image) {
@@ -158,7 +175,8 @@ function shiftClicked(e) {
 
     // Otherwise, if it's a valid discipline, set the shift icon
     else if (cursorImage != "") {
-        setShiftImage(this.id, cursorImage);
+        var cursorName = cursorImage.substring(0, cursorImage.indexOf("."));
+        setShiftImage(this.id, cursorName + ".png");
     }
 }
 
@@ -167,30 +185,32 @@ function shiftClicked(e) {
 function sidebarButtonClicked(e) {
     // Get the image for the button that was pressed to use as the cursor
     var otherStyle = "";
-    if (this.id == "adultSki") {
-        otherStyle = imagePath + "adultSki.png";
+/*    if (this.id == "adultSki") {
+        otherStyle = imagePath + "adultSki";
     } else if (this.id == "adultSnowboard") {
-        otherStyle = imagePath + "adultSnowboard.png";
+        otherStyle = imagePath + "adultSnowboard";
     } else if (this.id == "childrenSki") {
-        otherStyle = imagePath + "childrenSki.png";
+        otherStyle = imagePath + "childrenSki";
     } else if (this.id == "childrenSnowboard") {
-        otherStyle = imagePath + "childrenSnowboard.png";
+        otherStyle = imagePath + "childrenSnowboard";
     } else if (this.id == "racing") {
-        otherStyle = imagePath + "racing.png";
+        otherStyle = imagePath + "racing";
     } else if (this.id == "removeShift") {
-        otherStyle = imagePath + "eraser.png";
+        otherStyle = imagePath + "eraser";
     } else if (this.id == "excused") {
-        otherStyle = imagePath + "excused.png";
+        otherStyle = imagePath + "excused";
     } else if (this.id == "absent") {
-        otherStyle = imagePath + "absent.png";
+        otherStyle = imagePath + "absent";
     } else if (this.id == "excuseCancel") {
-        otherStyle = imagePath + "excuseCancel.png";
+        otherStyle = imagePath + "excuseCancel";
     } else if (this.id == "absentCancel") {
-        otherStyle = imagePath + "absentCancel.png";
-    }
+        otherStyle = imagePath + "absentCancel";
+    } */
+
+    otherStyle = imagePath + this.id + ".cur"; // id is the same as the image name
     // Specify the "hot spot" for the cursor (i.e. the center) as the point
     // (32,32) in the image (might not work in IE)
-    var cursorStyle = "url(" + otherStyle + ") 32 32, auto";
+    var cursorStyle = "url(" + otherStyle + ") 15 15, auto";
     cursorImage = otherStyle;
 
     // If the arrow button was clicked, just clear the cursor instead
@@ -207,7 +227,7 @@ function sidebarButtonClicked(e) {
     document.getElementById("childrenSki").style.cursor = cursorStyle;
     document.getElementById("childrenSnowboard").style.cursor = cursorStyle;
     document.getElementById("racing").style.cursor = cursorStyle;     
-    document.getElementById("removeShift").style.cursor = cursorStyle;
+    document.getElementById("eraser").style.cursor = cursorStyle;
     document.getElementById("arrow").style.cursor = cursorStyle;
     try {
         document.getElementById("excused").style.cursor = cursorStyle;
