@@ -220,9 +220,9 @@ def get_human_readable_discipline(discipline_num):
     elif discipline_num == 1:
         return "Adult Board"
     elif discipline_num == 2:
-        return "Children Ski"
+        return "Child Ski"
     elif discipline_num == 3:
-        return "Children Board"
+        return "Child Board"
     elif discipline_num == 4:
         return "Race"
     else:

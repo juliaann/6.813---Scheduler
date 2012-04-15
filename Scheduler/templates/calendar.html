@@ -337,10 +337,10 @@
 				else if ("{{ discipline }}" == "Adult Board") {
 					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/adultSnowboard.png">';
 				}
-				else if ("{{ discipline }}" == "Children Ski") {
+				else if ("{{ discipline }}" == "Child Ski") {
 					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/childrenSki.png">';
 				}
-				else if ("{{ discipline }}" == "Children Board") {
+				else if ("{{ discipline }}" == "Child Board") {
 					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/childrenSnowboard.png">';
 				}
 				else if ("{{ discipline }}" == "Race") {
@@ -354,6 +354,7 @@
 			else if ("{{ status }}" == "Absent") {
 				shiftButton.innerHTML += '<img class="overlayImage" src="/static/images/absent.png">';
 			}
+			
 		</script>
 	{% endfor %}
 	
