@@ -46,15 +46,33 @@ $(document).ready(function() {
 
 // Given an element id and an image, sets the image src in the innerHTML
 function setShiftImage(id, image) {
-    var shiftButton = document.getElementById(id);
-    shiftButton.innerHTML = '<img class="calendarImage" src="' + image + '">';
+    var b = document.getElementById(id);
+    b.innerHTML = '<img class="calendarImage" src="' + image + '">';
+}
+
+// Given an element id and an image, sets the overlay (absent/excused) image
+// src in the innerHTML
+function setShiftOverlayImage(id, image) {
+    var b = document.getElementById(id);
+
+    // If it already had an overlap image, replace it
+    if ((b.innerHTML.indexOf("absent") != -1) || 
+        (b.innerHTML.indexOf("excused") != -1)) {
+        var icon = b.innerHTML.substring(0, b.innerHTML.indexOf(">")+1);
+        b.innerHTML = icon + '<img class="overlayImage" src="' + image + '">';
+    }
+
+    // Otherwise, just add the excused image to it
+    else {
+       b.innerHTML += '<img class="overlayImage" src="' + image + '">';
+    }
 }
 
 // Uses the current cursor to change the image for the shift
 function shiftClicked(e) {
 
     // If the cursor is the eraser, remove the shift
-    if (cursorImage == imagePath + "eraser.png") {
+    if (cursorImage.indexOf("eraser.") != -1) {
         if (this.id.indexOf("morning") != -1) {
             var image = imagePath + "day.png";
             setShiftImage(this.id, image);
@@ -64,6 +82,46 @@ function shiftClicked(e) {
         } else if (this.id.indexOf("night") != -1) {
             var image = imagePath + "night.png";
             setShiftImage(this.id, image);
+        }
+    }
+
+    // If it's excused add that image to the button as an overlay
+    else if (cursorImage.indexOf("excused.") != -1) {
+        // If there is no discipline set, ignore the button press
+        if ((this.innerHTML.indexOf("day") == -1) &&
+            (this.innerHTML.indexOf("evening") == -1) &&
+            (this.innerHTML.indexOf("night") == -1)) {
+            
+            // Set the overlay image to be excused
+            setShiftOverlayImage(this.id, imagePath + "excused.png");
+        }
+    }
+
+    // If it's absent add that image to the button as an overlay
+    else if (cursorImage.indexOf("absent.") != -1) {
+        // If there is no discipline set, ignore the button press
+        if ((this.innerHTML.indexOf("day") == -1) &&
+            (this.innerHTML.indexOf("evening") == -1) &&
+            (this.innerHTML.indexOf("night") == -1)) {
+
+            // Set the overlay image to be absent
+            setShiftOverlayImage(this.id, imagePath + "absent.png");
+        }
+    }
+
+    // Check if we're just clearing the excused label
+    else if (cursorImage.indexOf("excuseCancel.") != -1) {
+        if (this.innerHTML.indexOf("excused") != -1) {
+            var icon = this.innerHTML.substring(0, this.innerHTML.indexOf(">")+1);
+            this.innerHTML = icon;
+        }
+    }
+
+    // Check if we're just clearing the absent label
+    else if (cursorImage.indexOf("absentCancel.") != -1) {
+        if (this.innerHTML.indexOf("absent") != -1) {
+            var icon = this.innerHTML.substring(0, this.innerHTML.indexOf(">")+1);
+            this.innerHTML = icon;
         }
     }
 
