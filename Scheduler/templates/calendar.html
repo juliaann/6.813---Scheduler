@@ -290,6 +290,46 @@
 	</tr>
 	</table>
 
+	{% for status, date, time, discipline in shifts %}
+		<script language="javascript" type="text/javascript">
+			var timeIdText = "";
+			if ("{{ time }}" == "Day") {
+				timeIdText = "morning";
+			}
+			else if ("{{ time }}" == "Evening") {
+				timeIdText = "evening";
+			}
+			else if ("{{ time }}" == "Night") {
+				timeIdText = "night";
+			}
+			var shiftButton = document.getElementById("{{ date.isoformat }}" + timeIdText);
+			
+			if ("{{ status }}" != "Pending Add") {
+				if ("{{ discipline }}" == "Adult Ski") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/adultSki.png">';
+				}
+				else if ("{{ discipline }}" == "Adult Board") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/adultSnowboard.png">';
+				}
+				else if ("{{ discipline }}" == "Children Ski") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/childrenSki.png">';
+				}
+				else if ("{{ discipline }}" == "Children Board") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/childrenSnowboard.png">';
+				}
+				else if ("{{ discipline }}" == "Race") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/racing.png">';
+				}
+			}
+			
+			if ("{{ status }}" == "Excused") {
+				// TODO
+			}
+			else if ("{{ status }}" == "Absent") {
+				// TODO
+			}
+		</script>
+	{% endfor %}
 
 	<table class="my_schedule" border="1">
 		<tr>
