@@ -138,17 +138,17 @@
 				{{date.day}} </br>
 				<div class = "shiftButtons">
 				{% if morning %}
-					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if evening %}
-					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if night %}
-					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
@@ -179,17 +179,17 @@
 				{{date.day}} </br>
 				<div class = "shiftButtons">
 				{% if morning %}
-					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if evening %}
-					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if night %}
-					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
@@ -220,17 +220,17 @@
 				{{date.day}} </br>
 				<div class = "shiftButtons">
 				{% if morning %}
-					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if evening %}
-					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if night %}
-					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
@@ -262,17 +262,17 @@
 				{{date.day}} </br>
 				<div class = "shiftButtons">
 				{% if morning %}
-					<button id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}morning><img class="calendarImage" src="/static/images/day.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if evening %}
-					<button id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}evening><img class="calendarImage" src="/static/images/evening.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
 				{% if night %}
-					<button id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
+					<button class="defaultButton" id={{date.isoformat}}night><img class="calendarImage" src="/static/images/night.png"></button>
 				{% else %}
 					<img class="blank" src="/static/images/blank.png">
 				{% endif %}
@@ -305,6 +305,16 @@
 			var shiftButton = document.getElementById("{{ date.isoformat }}" + timeIdText);
 			
 			if ("{{ status }}" != "Pending Add") {
+				if ("{{ time }}" == "Day") {
+					shiftButton.className = "dayButton";
+				}
+				else if ("{{ time }}" == "Evening") {
+					shiftButton.className = "eveningButton";
+				}
+				else if ("{{ time }}" == "Night") {
+					shiftButton.className = "nightButton";
+				}
+			
 				if ("{{ discipline }}" == "Adult Ski") {
 					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/adultSki.png">';
 				}
@@ -323,34 +333,14 @@
 			}
 			
 			if ("{{ status }}" == "Excused") {
-				// TODO
+				shiftButton.innerHTML += '<img class="overlayImage" src="/static/images/excused.png">';
 			}
 			else if ("{{ status }}" == "Absent") {
-				// TODO
+				shiftButton.innerHTML += '<img class="overlayImage" src="/static/images/absent.png">';
 			}
 		</script>
 	{% endfor %}
-
-	<table class="my_schedule" border="1">
-		<tr>
-			<td colspan=4 align="center"> {{ instructor }} 's Schedule </td>
-		</tr>
-		<tr>
-			<th> Status </th>
-			<th> Date </th>
-			<th> Time </th>
-			<th> Discipline </th>
-		</tr>
-
-		{% for status, date, time, discipline in shifts %}
-		<tr>
-			<td> {{ status }} </td>
-			<td> {{ date }} </td>
-			<td> {{ time }} </td>
-			<td> {{ discipline }} </td>
-		</tr>
-		{% endfor %}
-
+	
 	</table>
 </div>
 

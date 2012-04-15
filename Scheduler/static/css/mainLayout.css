@@ -20,7 +20,24 @@ div.container{
 .calendarImage{
 	height:30px;
 	width:30px;
-	
+	position:relative;
+	z-index:1;
+	top:0px;
+	left:0px;
+}
+
+.overlayImage{
+	height:30px;
+	width:30px;
+	position:relative;
+	z-index:2;
+	top:0px;
+	left:-30px;
+}
+
+.buttonSpan{
+	height:39px;
+	width:46px;
 }
 
 .blank{
@@ -179,4 +196,20 @@ li{
 	width: 100%;
 	height: 100%;
 	z-index: -10;
+}
+
+.defaultButton{
+
+}
+
+.dayButton{
+	background-color: LightYellow;
+}
+
+.eveningButton{
+	background-color: LightBlue;
+}
+
+.nightButton{
+	background-color: Black;
 }
