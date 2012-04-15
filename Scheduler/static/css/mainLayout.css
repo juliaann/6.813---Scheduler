@@ -27,12 +27,16 @@ div.container{
 	height: 37px;
 	width: 46;
 	padding: 2px 6px 3px;
-	boarder: 2px;
+	border: 2px;
 	
 }
 
 .shiftButtons{
 	text-align: left;
+}
+
+.dayOfWeek{
+	text-align: center;
 }
 
 #sidebarPanel{
