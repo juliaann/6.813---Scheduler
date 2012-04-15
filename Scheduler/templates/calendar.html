@@ -97,7 +97,20 @@
 <!-- Header is a div -->
 <div id="pendingHeader">
 <h1> You must hit submit to record changes! </h1>
+<table id=legend>
+	<tr>
+		<td class="leg"><img class="legImg" src="/static/images/day.png"></td>
+		<td class="leg"><img class="legImg" src="/static/images/evening.png"></td>
+		<td class="leg"><img class="legImg" src="/static/images/night.png"></td>
+	</tr>
+	<tr>
+		<td>Day</td>
+		<td>Night</td>
+		<td>Evening</td>
+	</tr>
+</table>
 {% if pending_changes != None %}
+
 	<table class="pendingChanges">
 		<tr>
 			<th></th>

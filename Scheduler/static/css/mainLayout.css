@@ -237,3 +237,19 @@ a.nav:hover{
 .nightButton{
 	background-color: Black;
 }
+
+#legend{
+	position: fixed;
+	top: 100px;	
+	left: 720px;
+	text-align: center;	
+}
+
+.leg{
+	width: 70px;
+}
+
+.legImg{
+	width: 40px;
+	height: 40px;
+}
