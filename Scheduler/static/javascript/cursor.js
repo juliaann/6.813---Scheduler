@@ -37,56 +37,26 @@ $(document).ready(function() {
         addSidebarClickListener('absentCancel'); 
     } catch (err) { }
 
-    // Add click listeners to the shift button -- will clean up later
-    // December
-    var month = 12;
-    for (var day = 1; day <= 31; day++) {
-        var date = "2012-" + month + "-" + day;
+    // Add click listeners to the shift buttons
+    var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
+    for (var midx = 0; midx < yearMonths.length; midx++) {
+        var yearMonth = yearMonths[midx];
 
-        if (day < 10) {
-            date = "2012-" + month + "-0" + day;
-        }
-        
-        // Morning
-        try {  
-            addShiftClickListener(date + "morning");
-        } catch(err) { }
-     
-        // Evening
-        try {
-            addShiftClickListener(date + "evening");
-        } catch(err) { }
-
-        // Night
-        try {
-            addShiftClickListener(date + "night");
-        } catch(err) { }  
-    }
- 
-    // January - March
-    for (var month = 1; month <= 3; month++) {
         for (var day = 1; day <= 31; day++) {
-            var date = "2013-0" + month + "-" + day;
+            var date = yearMonth + "-" + day;
+            
             if (day < 10) {
-                date = "2013-0" + month + "-0" + day;
+                date = yearMonth + "-0" + day;
             }
-        
-            // Morning
-            try {  
-                addShiftClickListener(date + "morning");
-            } catch(err) { }
-         
-            // Evening
-            try {
-                addShiftClickListener(date + "evening");
-            } catch(err) { }
 
-            // Night
-            try {
-                addShiftClickListener(date + "night");
-            } catch(err) { }  
+            var shifts = ["morning", "evening", "night"];
+            for (var sidx = 0; sidx < shifts.length; sidx++) {
+                try {
+                    addShiftClickListener(date + shifts[sidx]);
+                } catch(err) { }
+            }
         }
-    } 
+    }
 });
 
 // Given an element id and an image, sets the image src in the innerHTML
@@ -110,17 +80,28 @@ function setShiftImage(id, image) {
 function setShiftOverlayImage(id, image) {
     var b = document.getElementById(id);
 
-    // If it already had an overlap image, replace it
+    // If it already had an overlay image, clear it
     if ((b.innerHTML.indexOf("absent") != -1) || 
         (b.innerHTML.indexOf("excused") != -1)) {
-        var icon = b.innerHTML.substring(0, b.innerHTML.indexOf(">")+1);
-        b.innerHTML = icon + '<img class="overlayImage" src="' + image + '">';
+        clearShiftOverlayImage(id);
     }
 
-    // Otherwise, just add the excused image to it
-    else {
-       b.innerHTML += '<img class="overlayImage" src="' + image + '">';
-    }
+    b.innerHTML += '<img class="overlayImage" src="' + image + '">';
+}
+
+// Given an element id, clears the overlay image
+function clearShiftOverlayImage(id) {
+    var b = document.getElementById(id);
+    var icon = b.innerHTML.substring(0, b.innerHTML.indexOf(">")+1);
+    b.innerHTML = icon;
+}
+
+// Checks if a shift is even set (i.e. has a discipline)
+function hasDiscipline(id) {
+    var b = document.getElementById(id);
+    return (b.innerHTML.indexOf("day") == -1) &&
+           (b.innerHTML.indexOf("evening") == -1) &&
+           (b.innerHTML.indexOf("night") == -1)
 }
 
 // Uses the current cursor to change the image for the shift
@@ -143,10 +124,8 @@ function shiftClicked(e) {
 
     // If it's excused add that image to the button as an overlay
     else if (cursorImage.indexOf("excused.") != -1) {
-        // If there is no discipline set, ignore the button press
-        if ((this.innerHTML.indexOf("day") == -1) &&
-            (this.innerHTML.indexOf("evening") == -1) &&
-            (this.innerHTML.indexOf("night") == -1)) {
+        // If there is no discipline set, ignore the button press 
+        if (hasDiscipline(this.id)) {
             
             // Set the overlay image to be excused
             setShiftOverlayImage(this.id, imagePath + "excused.png");
@@ -155,10 +134,8 @@ function shiftClicked(e) {
 
     // If it's absent add that image to the button as an overlay
     else if (cursorImage.indexOf("absent.") != -1) {
-        // If there is no discipline set, ignore the button press
-        if ((this.innerHTML.indexOf("day") == -1) &&
-            (this.innerHTML.indexOf("evening") == -1) &&
-            (this.innerHTML.indexOf("night") == -1)) {
+        // If there is no discipline set, ignore the button press 
+        if (hasDiscipline(this.id)) {
 
             // Set the overlay image to be absent
             setShiftOverlayImage(this.id, imagePath + "absent.png");
@@ -168,16 +145,14 @@ function shiftClicked(e) {
     // Check if we're just clearing the excused label
     else if (cursorImage.indexOf("excuseCancel.") != -1) {
         if (this.innerHTML.indexOf("excused") != -1) {
-            var icon = this.innerHTML.substring(0, this.innerHTML.indexOf(">")+1);
-            this.innerHTML = icon;
+            clearShiftOverlayImage(this.id);
         }
     }
 
     // Check if we're just clearing the absent label
     else if (cursorImage.indexOf("absentCancel.") != -1) {
         if (this.innerHTML.indexOf("absent") != -1) {
-            var icon = this.innerHTML.substring(0, this.innerHTML.indexOf(">")+1);
-            this.innerHTML = icon;
+            clearShiftOverlayImage(this.id);
         }
     }
 
@@ -241,55 +216,25 @@ function sidebarButtonClicked(e) {
         document.getElementById("absentCancel").style.cursor = cursorStyle;
     } catch (err) { }
 
-    // December
-    var month = 12;
-    for (var day = 1; day <= 31; day++) {
-        var date = "2012-" + month + "-" + day;
-        if (day < 10) {
-            date = "2012-" + month + "-0" + day;
-        }
-        
-        // Morning
-        try {  
-            document.getElementById(date + "morning").style.cursor = cursorStyle;
-        } catch(err) { }
-     
-        // Evening
-        try {
-            document.getElementById(date + "evening").style.cursor = cursorStyle;
-        } catch(err) { }
+    // Set the cursor style for each of the shift buttons in the calendar
+    var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
+    for (var midx = 0; midx < yearMonths.length; midx++) {
+        var yearMonth = yearMonths[midx];
 
-        // Night
-        try {
-            document.getElementById(date + "night").style.cursor = cursorStyle;
-        } catch(err) { }  
-    }
- 
-    // January - March
-    for (var month = 1; month <= 3; month++) {
         for (var day = 1; day <= 31; day++) {
-            var date = "2013-0" + month + "-" + day;
+            var date = yearMonth + "-" + day;
+            
             if (day < 10) {
-                date = "2013-0" + month + "-0" + day;
+                date = yearMonth + "-0" + day;
             }
-        
-            // Morning
-            try {  
-                var id = date + "morning";
-                document.getElementById(id).style.cursor = cursorStyle;
-            } catch(err) { }
-         
-            // Evening
-            try {
-                var id = date + "evening";
-                document.getElementById(id).style.cursor = cursorStyle;
-            } catch(err) { }
 
-            // Night
-            try {
-                var id = date + "night";
-                document.getElementById(id).style.cursor = cursorStyle;
-            } catch(err) { }  
+            var shifts = ["morning", "evening", "night"];
+            for (var sidx = 0; sidx < shifts.length; sidx++) {
+                try {
+                    var id = date + shifts[sidx];
+                    document.getElementById(id).style.cursor = cursorStyle;
+                } catch(err) { }
+            }
         }
     }
 }
