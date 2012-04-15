@@ -4,10 +4,10 @@
 {% url Scheduler.views.view_calendar as calendar %}
 {% url Scheduler.views.logout as logout %}
 
-<div id="navigationBar">
+<div class="navigationBar">
 	<ul id="topNavigation">
-		<li><a href="/" class="{% active request home %}">Home</a></li>
-		<li><a href="/calendar/" class="{% active request calendar %}">Calendar</a></li>
-		<li><a href="/logout/" class="{% active request logout %}">Logout</a></li> 
+		<li><a class="nav" href="/" class="{% active request home %}">Home</a></li>
+		<li><a class="nav" href="/calendar/" class="{% active request calendar %}">Calendar</a></li>
+		<li><a class="nav" href="/logout/" class="{% active request logout %}">Logout</a></li> 
 	</ul>
 </div>

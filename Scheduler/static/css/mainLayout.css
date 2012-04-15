@@ -65,24 +65,30 @@ div.container{
 	height: 100%;
 	z-index: 1;
 	background-color: rgb(190,217, 239);
+	border-right-style: solid;
+	border-right-color: black;
+	border-right-width: 1px;
 }
 
 #pendingHeader{
 	position: fixed;
-	top: 90px;
+	top: 93px;
 	left: 150px;
 	z-index:20;
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
-	background-color: white;
+	background-color: rgb(190,217, 239);
+	border-bottom-style: solid;
+	border-bottom-color: black;
+	border-bottom-width: 1px;
 }
 
 #calendarPanel{
 	position: absolute;
 	margin: 1%;
 	left: 150px;
-	top: 200px;
+	top: 20px;
 	z-index: 1;
 }
 .month{
@@ -119,11 +125,12 @@ div.container{
 	background-color: rgb(190,217, 239);
 }
 
-#navigationBar{
+.navigationBar{
 	position: fixed;
-	top: 50px;
-	background-color: rgb(190,217, 239);
+	top: 55px;
+	background-color: #000066;
 	z-index:21;
+	width: 100%
 }
 
 #login_form{
@@ -171,12 +178,34 @@ ul{
 	list-style-type:none;
 	margin:0;
 	padding:0;
+	overflow: hidden;
 }
 
 li{
 	float:left;
 	padding: 10px;
 }
+
+a.nav:link, a.nav:visited{
+	display: block;
+	font-weight: bold;
+	color: #FFFFFF;
+	background-color: #000066;
+	text-align: center;
+	padding 4px;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
+a.calToView:link, a.calToView:visited{
+	font-weight: normal;
+	text-align: left;
+	padding 4px;
+	text-decorcation: none;
+	text-tranform: none;
+	color: black;
+}
+
 
 .calToView { 
 	position: absolute;
