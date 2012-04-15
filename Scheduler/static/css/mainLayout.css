@@ -17,7 +17,6 @@ div.container{
 .sidebarImage{
 	height:30px;
 	width:30px;
-	
 }
 
 .calendarImage{
@@ -34,8 +33,8 @@ div.container{
 	width:30px;
 	position:relative;
 	z-index:2;
-	top:0px;
-	left:-30px;
+	top:-30px;
+	left:0px;
 }
 
 .buttonSpan{
@@ -226,19 +225,26 @@ a.nav:hover{
 }
 
 .defaultButton{
-
+	height:39px;
+	width:46px;
 }
 
 .dayButton{
 	background-color: #FFFF66;
+	height:39px;
+	width:46px;
 }
 
 .eveningButton{
 	background-color: #6699FF;
+	height:39px;
+	width:46px;
 }
 
 .nightButton{
 	background-color: Black;
+	height:39px;
+	width:46px;
 }
 
 #legend{
