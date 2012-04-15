@@ -2,43 +2,32 @@
 var cursorImage = "";
 var imagePath = "/static/images/";
 
+// Adds a click listener to the element (in the sidebar panel) specified by id
+function addSidebarClickListener(id) {
+    var button = document.getElementById(id);
+    if (button.addEventListener) {
+        button.addEventListener('click', sidebarButtonClicked, false);
+    }
+}
+
 // Add the click listener to each sidebar button
 $(document).ready(function() {
 
-    var adultSki = document.getElementById('adultSki');
-    if (adultSki.addEventListener) {
-        adultSki.addEventListener('click', sidebarButtonClicked, false);
-    }
+    addSidebarClickListener('adultSki');
+    addSidebarClickListener('adultSnowboard');
+    addSidebarClickListener('childrenSki');
+    addSidebarClickListener('childrenSnowboard');
+    addSidebarClickListener('racing');
 
-    var adultSnow = document.getElementById('adultSnowboard');
-    if (adultSnow.addEventListener) {
-        adultSnow.addEventListener('click', sidebarButtonClicked, false);
-    }
-
-    var childrenSki = document.getElementById('childrenSki');
-    if (childrenSki.addEventListener) {
-        childrenSki.addEventListener('click', sidebarButtonClicked, false);
-    }
-
-    var childrenSnowboard = document.getElementById('childrenSnowboard');
-    if (childrenSnowboard.addEventListener) {
-        childrenSnowboard.addEventListener('click', sidebarButtonClicked, false);
-    }
-
-    var racing = document.getElementById('racing');
-    if (racing.addEventListener) {
-        racing.addEventListener('click', sidebarButtonClicked, false);
-    }
-
-    var removeShift = document.getElementById('removeShift');
-    if (removeShift.addEventListener) {
-        removeShift.addEventListener('click', sidebarButtonClicked, false);
-    }
-
-    var arrow = document.getElementById('arrow');
-    if (arrow.addEventListener) {
-        arrow.addEventListener('click', sidebarButtonClicked, false);
-    }
+    addSidebarClickListener('removeShift');
+    addSidebarClickListener('arrow');
+  
+    try {
+        addSidebarClickListener('excused');
+        addSidebarClickListener('absent');
+        addSidebarClickListener('excuseCancel');
+        addSidebarClickListener('absentCancel'); 
+    } catch (err) { }
 
     // Play with 12/23 morning/evening/night 
     var day = document.getElementById('2012-12-23morning');
@@ -101,6 +90,14 @@ function sidebarButtonClicked(e) {
         otherStyle = imagePath + "racing.png";
     } else if (this.id == "removeShift") {
         otherStyle = imagePath + "eraser.png";
+    } else if (this.id == "excused") {
+        otherStyle = imagePath + "excused.png";
+    } else if (this.id == "absent") {
+        otherStyle = imagePath + "absent.png";
+    } else if (this.id == "excuseCancel") {
+        otherStyle = imagePath + "excuseCancel.png";
+    } else if (this.id == "absentCancel") {
+        otherStyle = imagePath + "absentCancel.png";
     }
     // Specify the "hot spot" for the cursor (i.e. the center) as the point
     // (32,32) in the image (might not work in IE)
@@ -123,6 +120,12 @@ function sidebarButtonClicked(e) {
     document.getElementById("racing").style.cursor = cursorStyle;     
     document.getElementById("removeShift").style.cursor = cursorStyle;
     document.getElementById("arrow").style.cursor = cursorStyle;
+    try {
+        document.getElementById("excused").style.cursor = cursorStyle;
+        document.getElementById("absent").style.cursor = cursorStyle;
+        document.getElementById("excuseCancel").style.cursor = cursorStyle;
+        document.getElementById("absentCancel").style.cursor = cursorStyle;
+    } catch (err) { }
 
     // December
     var month = 12;
@@ -158,17 +161,20 @@ function sidebarButtonClicked(e) {
         
             // Morning
             try {  
-                document.getElementById(date + "morning").style.cursor = cursorStyle;
+                var id = date + "morning";
+                document.getElementById(id).style.cursor = cursorStyle;
             } catch(err) { }
          
             // Evening
             try {
-                document.getElementById(date + "evening").style.cursor = cursorStyle;
+                var id = date + "evening";
+                document.getElementById(id).style.cursor = cursorStyle;
             } catch(err) { }
 
             // Night
             try {
-                document.getElementById(date + "night").style.cursor = cursorStyle;
+                var id = date + "night";
+                document.getElementById(id).style.cursor = cursorStyle;
             } catch(err) { }  
         }
     }

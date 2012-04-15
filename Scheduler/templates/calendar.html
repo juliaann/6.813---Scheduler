@@ -13,17 +13,17 @@
         </tr>
         <tr>
             <td>
-                <button class="sidebarButton" id="adultSki"><img img class="sidebarImage" src="/static/images/adultSki.png"></button><br />
+                <button class="sidebarButton" id="adultSki"><img class="sidebarImage" src="/static/images/adultSki.png"></button><br />
                 <span class="sidebarText">Adult: Ski</span>
             </td>
             <td>
-                <button class="sidebarButton" id="adultSnowboard"><img img class="sidebarImage" src="/static/images/adultSnowboard.png"></button><br />
+                <button class="sidebarButton" id="adultSnowboard"><img class="sidebarImage" src="/static/images/adultSnowboard.png"></button><br />
                 <span class="sidebarText">Adult: Board</span>
             </td>
         </tr>
         <tr>
             <td>
-                <button class="sidebarButton" id="childrenSki"><img img class="sidebarImage" src="/static/images/childrenSki.png"></button><br />
+                <button class="sidebarButton" id="childrenSki"><img class="sidebarImage" src="/static/images/childrenSki.png"></button><br />
                 <span class="sidebarText">Child: Ski</span>
             </td>
             <td>
@@ -33,7 +33,7 @@
         </tr>		
         <tr>
             <td>
-                <button class="sidebarButton" id="racing"><img img class="sidebarImage" src="/static/images/racing.png"></button><br />
+                <button class="sidebarButton" id="racing"><img class="sidebarImage" src="/static/images/racing.png"></button><br />
                 <span class="sidebarText">Racing</span>
             </td>
         </tr>
@@ -42,22 +42,53 @@
 
         <tr>
             <td>
-                <button class="sidebarButton" id="removeShift"><img img class="sidebarImage" src="/static/images/eraser.png"></button><br />
+                <button class="sidebarButton" id="removeShift"><img class="sidebarImage" src="/static/images/eraser.png"></button><br />
                 <span class="sidebarText">Remove Shift</span>
             </td>
             <td>
-                <button class="sidebarButton" id="arrow"><img img class="sidebarImage" src="/static/images/arrow.png"></button><br />
+                <button class="sidebarButton" id="arrow"><img class="sidebarImage" src="/static/images/arrow.png"></button><br />
                 <span class="sidebarText">&nbsp;</span>
             </td>
         </tr>		
 
         <tr><td class="sidebarSpacer">&nbsp;</td></tr>
+       
+		{% if isAdmin == "True" %}
+        <tr>
+            <td>
+                <button class="sidebarButton" id="excused"><img class="sidebarImage" src="/static/images/excused.png"></button><br />
+                <span class="sidebarText">Excused</span>
+            </td>
+            <td>
+                <button class="sidebarButton" id="absent"><img class="sidebarImage" src="/static/images/absent.png"></button><br />
+                <span class="sidebarText">Absent</span>
+            </td>
+        </tr>		
+        <tr>
+            <td>
+                <button class="sidebarButton" id="excuseCancel"><img class="sidebarImage" src="/static/images/excuseCancel.png"></button><br />
+                <span class="sidebarText">Clear Excused</span>
+            </td>
+            <td>
+                <button class="sidebarButton" id="absentCancel"><img class="sidebarImage" src="/static/images/absentCancel.png"></button><br />
+                <span class="sidebarText">Clear Absent</span>
+            </td>
+        </tr>		
 
         <tr>
             <td colspan=2 id="submitCell">
                 <button id="submit">Submit</button>
             </td>
         </tr>
+
+        {% else %}
+        <tr>
+            <td colspan=2 id="submitCell">
+                <button id="submit">Submit Request</button>
+            </td>
+        </tr>
+
+        {% endif %}
 
 	</table>
 
