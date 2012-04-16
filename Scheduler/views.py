@@ -23,8 +23,6 @@ def index(request):
                                     
                 login(request, user)
                 request.session['username'] = user.username
-                instr = User.objects.get(username = 'admin')
-                instr_name = instr.first_name + instr.last_name
                 return render_to_response('index.html', {'instructor': request.session['username'],
                                                          'isAdmin': isAdmin,
                                                          'allInstr': allInstr,
