@@ -1,6 +1,7 @@
 // Useful global variables for updating the calendar view via user mouse clicks
 var cursorImage = "";
 var imagePath = "/static/images/";
+var radioMsg = "";
 
 // Adds a click listener to the element (in the sidebar panel) specified by id
 function addSidebarClickListener(id) {
@@ -57,23 +58,107 @@ $(document).ready(function() {
             }
         }
     }
-/*
+
     // Add click listeners to the radio buttons (pending changes for admin)
-    var pendingChangesTable = document.getElementById("pendingChanges");
-    var rows = pendingChangesTable.rows;
-    var count = 0;
-    for (var i = 1; i < rows.length; i++) { // skip header row
-        var cells = rows[i].cells;
-        var msg = cells[0].innerHTML;
-        var acceptButton = cells[1].firstChild;
-        var rejectButton = cells[2].firstChild;
-        acceptButton.addEventListener('click', sidebarButtonClicked, false)
-    } */
+    var pendingTable = document.getElementById("pendingChangesTable");
+    var pendingRows = pendingTable.rows;
+    for (var i = 0; i < pendingRows.length; i++) {
+        var pendingCells = pendingRows[i].cells;
+        if (pendingCells.length > 0) {
+            var msg = pendingCells[0].innerHTML;
+            var acceptButton = pendingCells[1].firstChild;
+            var rejectButton = pendingCells[2].firstChild;
+            acceptButton.addEventListener('click', radioButtonClicked, false);
+            rejectButton.addEventListener('click', radioButtonClicked, false);
+        }
+    }
 });
 
 function radioButtonClicked(e) {
-    b = document.getElementById("2012-12-16morning");
-    setShiftImage(b, imagePath + "eraser.png");
+    // Find the message corresponding to this radio button
+    var msg = "INVALID";
+    var pendingTable = document.getElementById("pendingChangesTable");
+    var pendingRows = pendingTable.rows;
+    for (var i = 0; i < pendingRows.length; i++) {
+        var pendingCells = pendingRows[i].cells;
+        if (pendingCells.length > 0) {
+            if (pendingCells[1].firstChild.name == this.name) {
+                msg = pendingCells[0].innerHTML;
+                break;
+            }
+        }
+    }
+
+    // Get the text and parse out the discipline, time, date, and status
+    var discipline = msg.substring(1, msg.indexOf(":"));
+    msg = msg.substring(msg.indexOf(":")+2); // ignore ": "
+
+    var time = msg.substring(0, msg.indexOf(" "));
+    msg = msg.substring(msg.indexOf(" ")+4); // ignore " on "
+
+    var date = msg.substring(0, msg.indexOf(" is"));
+    var status = msg.substring(msg.indexOf(" is")+12);
+
+    // Figure out the id for the shift button based on the date and time
+    var spaceIdx = date.indexOf(" ");
+    var commaIdx = date.indexOf(",");
+    var monthStr = date.substring(0, spaceIdx);
+    var month;
+    if (monthStr == "December") {
+        month = "12";
+    } else if (monthStr == "January") {
+        month = "01";
+    } else if (monthStr == "February") {
+        month = "02";
+    } else {
+        month = "03";
+    }
+    var dayStr = date.substring(spaceIdx+1, commaIdx);
+    var day;
+    if (parseInt(dayStr) < 10) {
+        day = "0" + parseInt(dayStr);
+    } else {
+        day = dayStr;
+    }
+    var year = date.substring(commaIdx+2);
+    var id = year + "-" + month + "-" + day + time.toLowerCase();
+
+    // If it's a pending Add, get the image and set the shift to that image
+    if (status == "Add") {
+        if (this.value == "Accept") {
+            // Get the image
+            var image;
+            if (discipline == "Adult Ski") {
+                image = "adultSki.png";
+            } else if (discipline == "Adult Board") {
+                image = "adultSnowboard.png";
+            } else if (discipline == "Child Ski") {
+                image = "childrenSki.png";
+            } else if (discipline == "Child Board") {
+                image = "childrenSnowboard.png";
+            } else if (discipline == "Racing") {
+                image = "racing.png";
+            }
+
+            // Set the image for that shift
+            setShiftImage(id, imagePath + image);
+        } else {
+            clearShiftImage(id); // probably not ideal final goal
+        }
+    }
+
+    // If it's a pending Delete, clear the shift
+    else if (status == "Delete") {
+        if (this.value == "Accept") {
+            clearShiftImage(id);
+        } else {
+            // TODO -- I'm not sure what to do to undo it
+        }
+    }
+
+    // Otherwise, it's failing :( 
+    else {
+    }
 }
 
 // Given an element id and an image, sets the image src in the innerHTML
@@ -90,6 +175,21 @@ function setShiftImage(id, image) {
     } else if (b.id.indexOf("night") != -1) {
         b.className = "nightButton";
     }
+}
+
+// Given an element id, clear that shift in the innerHTML
+function clearShiftImage(id) {
+    if (id.indexOf("morning") != -1) {
+        var image = imagePath + "day.png";
+        setShiftImage(id, image);
+    } else if (id.indexOf("evening") != -1) {
+        var image = imagePath + "evening.png";
+        setShiftImage(id, image);
+    } else if (id.indexOf("night") != -1) {
+        var image = imagePath + "night.png";
+        setShiftImage(id, image);
+    }
+    document.getElementById(id).className = "defaultButton";
 }
 
 // Given an element id and an image, sets the overlay (absent/excused) image
@@ -126,17 +226,7 @@ function shiftClicked(e) {
 
     // If the cursor is the eraser, remove the shift
     if (cursorImage.indexOf("eraser.") != -1) {
-        if (this.id.indexOf("morning") != -1) {
-            var image = imagePath + "day.png";
-            setShiftImage(this.id, image);
-        } else if (this.id.indexOf("evening") != -1) {
-            var image = imagePath + "evening.png";
-            setShiftImage(this.id, image);
-        } else if (this.id.indexOf("night") != -1) {
-            var image = imagePath + "night.png";
-            setShiftImage(this.id, image);
-        }
-        this.className = "defaultButton";
+        clearShiftImage(this.id);
     }
 
     // If it's excused add that image to the button as an overlay
