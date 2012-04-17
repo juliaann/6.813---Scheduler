@@ -3,6 +3,9 @@ var cursorImage = "";
 var imagePath = "/static/images/";
 var radioMsg = "";
 
+// Keep track of the original state of each pending change
+var pendingChanges = new Object();
+
 // Adds a click listener to the element (in the sidebar panel) specified by id
 function addSidebarClickListener(id) {
     var button = document.getElementById(id);
@@ -104,11 +107,11 @@ function radioButtonClicked(e) {
     var commaIdx = date.indexOf(",");
     var monthStr = date.substring(0, spaceIdx);
     var month;
-    if (monthStr == "December") {
+    if (monthStr == "Dec.") {
         month = "12";
-    } else if (monthStr == "January") {
+    } else if (monthStr == "Jan.") {
         month = "01";
-    } else if (monthStr == "February") {
+    } else if (monthStr == "Feb.") {
         month = "02";
     } else {
         month = "03";
@@ -121,6 +124,7 @@ function radioButtonClicked(e) {
         day = dayStr;
     }
     var year = date.substring(commaIdx+2);
+    time = (time == "Day") ? "Morning" : time;
     var id = year + "-" + month + "-" + day + time.toLowerCase();
 
     // If it's a pending Add, get the image and set the shift to that image
@@ -140,19 +144,59 @@ function radioButtonClicked(e) {
                 image = "racing.png";
             }
 
+            // Store the original shift value, if one exists
+            pendingChanges[id] = document.getElementById(id).innerHTML;
+    
             // Set the image for that shift
             setShiftImage(id, imagePath + image);
+
+            // Change the button class to get the background color
+            if (b.id.indexOf("morning") != -1) {
+                b.className = "dayButton";
+            } else if (b.id.indexOf("evening") != -1) {
+                b.className = "eveningButton";
+            } else if (b.id.indexOf("night") != -1) {
+                b.className = "nightButton";
+            }
+
         } else {
-            clearShiftImage(id); // probably not ideal final goal
+            // Reset to the original image
+            var previous = pendingChanges[id];
+            if (typeof previous != "undefined") {
+                document.getElementById(id).innerHTML = previous;
+                if (!hasDiscipline(id)) {
+                    document.getElementById(id).className = "defaultButton";
+                }
+            }
         }
     }
 
     // If it's a pending Delete, clear the shift
     else if (status == "Delete") {
         if (this.value == "Accept") {
+            // Store the original shift value, if one exists
+            pendingChanges[id] = document.getElementById(id).innerHTML;
+
+            // Clear the shift image
             clearShiftImage(id);
         } else {
-            // TODO -- I'm not sure what to do to undo it
+            // Reset to the original image
+            var previous = pendingChanges[id];
+            if (typeof previous != "undefined") {
+                document.getElementById(id).innerHTML = previous;
+                if (!hasDiscipline(id)) {
+                    document.getElementById(id).className = "defaultButton";
+                }
+                // Change the button class to get the background color
+                b = document.getElementById(id);
+                if (b.id.indexOf("morning") != -1) {
+                    b.className = "dayButton";
+                } else if (b.id.indexOf("evening") != -1) {
+                    b.className = "eveningButton";
+                } else if (b.id.indexOf("night") != -1) {
+                    b.className = "nightButton";
+                }
+            }
         }
     }
 
