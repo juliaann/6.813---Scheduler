@@ -1,7 +1,14 @@
 // Useful global variables for updating the calendar view via user mouse clicks
 var cursorImage = "";
 var imagePath = "/static/images/";
-var radioMsg = "";
+
+// Arrays of the sidebar buttons for for loops -- note: these must remain
+// in this order -- for loops should be surrounded in a try/catch block
+// and so will catch errors and stop as soon as they hit the admin-only buttons
+// so those should all be last
+var sidebarIds = ["adultSki", "adultSnowboard", "childrenSki",
+                  "childrenSnowboard", "racing", "eraser", "arrow",
+                  "excused", "absent", "excuseCancel", "absentCancel"];
 
 // Keep track of the original state of each pending change
 var pendingChanges = new Object();
@@ -24,22 +31,12 @@ function addShiftClickListener(id) {
 
 // Add the click listener to each sidebar button
 $(document).ready(function() {
-
-    addSidebarClickListener('adultSki');
-    addSidebarClickListener('adultSnowboard');
-    addSidebarClickListener('childrenSki');
-    addSidebarClickListener('childrenSnowboard');
-    addSidebarClickListener('racing');
-
-    addSidebarClickListener('eraser');
-    addSidebarClickListener('arrow');
-  
+    // Add the click listener to the buttons for everybody
     try {
-        addSidebarClickListener('excused');
-        addSidebarClickListener('absent');
-        addSidebarClickListener('excuseCancel');
-        addSidebarClickListener('absentCancel'); 
-    } catch (err) { }
+        for (var i = 0; i < sidebarIds.length; i++) {
+            addSidebarClickListener(sidebarIds[i]);
+        }
+    } catch(err) { }
 
     // Add click listeners to the shift buttons
     var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
@@ -68,7 +65,6 @@ $(document).ready(function() {
     for (var i = 0; i < pendingRows.length; i++) {
         var pendingCells = pendingRows[i].cells;
         if (pendingCells.length > 0) {
-            var msg = pendingCells[0].innerHTML;
             var acceptButton = pendingCells[1].firstChild;
             var rejectButton = pendingCells[2].firstChild;
             acceptButton.addEventListener('click', radioButtonClicked, false);
@@ -106,25 +102,12 @@ function radioButtonClicked(e) {
     var spaceIdx = date.indexOf(" ");
     var commaIdx = date.indexOf(",");
     var monthStr = date.substring(0, spaceIdx);
-    var month;
-    if (monthStr == "Dec.") {
-        month = "12";
-    } else if (monthStr == "Jan.") {
-        month = "01";
-    } else if (monthStr == "Feb.") {
-        month = "02";
-    } else {
-        month = "03";
-    }
+    var monthToNumber = {"Dec.":"12", "Jan.":"01", "Feb.":"02", "Mar.":"03"};
+    var month = monthToNumber[monthStr];
     var dayStr = date.substring(spaceIdx+1, commaIdx);
-    var day;
-    if (parseInt(dayStr) < 10) {
-        day = "0" + parseInt(dayStr);
-    } else {
-        day = dayStr;
-    }
+    var day = (parseInt(dayStr) < 10) ? "0" + parseInt(dayStr) : dayStr;
     var year = date.substring(commaIdx+2);
-    time = (time == "Day") ? "Morning" : time;
+    time = (time == "Day") ? "Morning" : time; // morning not day
     var id = year + "-" + month + "-" + day + time.toLowerCase();
 
     // If it's a pending Add, get the image and set the shift to that image
@@ -150,24 +133,9 @@ function radioButtonClicked(e) {
             // Set the image for that shift
             setShiftImage(id, imagePath + image);
 
-            // Change the button class to get the background color
-            if (b.id.indexOf("morning") != -1) {
-                b.className = "dayButton";
-            } else if (b.id.indexOf("evening") != -1) {
-                b.className = "eveningButton";
-            } else if (b.id.indexOf("night") != -1) {
-                b.className = "nightButton";
-            }
-
         } else {
             // Reset to the original image
-            var previous = pendingChanges[id];
-            if (typeof previous != "undefined") {
-                document.getElementById(id).innerHTML = previous;
-                if (!hasDiscipline(id)) {
-                    document.getElementById(id).className = "defaultButton";
-                }
-            }
+            restoreShiftImage(id);
         }
     }
 
@@ -181,38 +149,18 @@ function radioButtonClicked(e) {
             clearShiftImage(id);
         } else {
             // Reset to the original image
-            var previous = pendingChanges[id];
-            if (typeof previous != "undefined") {
-                document.getElementById(id).innerHTML = previous;
-                if (!hasDiscipline(id)) {
-                    document.getElementById(id).className = "defaultButton";
-                }
-                // Change the button class to get the background color
-                b = document.getElementById(id);
-                if (b.id.indexOf("morning") != -1) {
-                    b.className = "dayButton";
-                } else if (b.id.indexOf("evening") != -1) {
-                    b.className = "eveningButton";
-                } else if (b.id.indexOf("night") != -1) {
-                    b.className = "nightButton";
-                }
-            }
+            restoreShiftImage(id);
         }
-    }
-
-    // Otherwise, it's failing :( 
-    else {
     }
 }
 
-// Given an element id and an image, sets the image src in the innerHTML
-function setShiftImage(id, image) {
-    // Set the image
-    var b = document.getElementById(id);
-    b.innerHTML = '<img class="calendarImage" src="' + image + '">';
-
-    // Change the button class to get the background color
-    if (b.id.indexOf("morning") != -1) {
+// Sets the appropriate class name for the shift button, effectively setting
+// its background color
+function setAppropriateClassName(id) {
+    b = document.getElementById(id);
+    if (!hasDiscipline(id)) {
+        b.className = "defaultButton";
+    } else if (b.id.indexOf("morning") != -1) {
         b.className = "dayButton";
     } else if (b.id.indexOf("evening") != -1) {
         b.className = "eveningButton";
@@ -221,19 +169,34 @@ function setShiftImage(id, image) {
     }
 }
 
+// Given an element id, restore the previous image (from pendingChanges)
+function restoreShiftImage(id) {
+    var previous = pendingChanges[id];
+    if (typeof previous != "undefined") {
+        document.getElementById(id).innerHTML = previous;
+        setAppropriateClassName(id);
+    }
+}
+
+// Given an element id and an image, sets the image src in the innerHTML
+function setShiftImage(id, image) {
+    // Set the image
+    var b = document.getElementById(id);
+    b.innerHTML = '<img class="calendarImage" src="' + image + '">';
+    setAppropriateClassName(id);
+}
+
 // Given an element id, clear that shift in the innerHTML
 function clearShiftImage(id) {
+    var image;
     if (id.indexOf("morning") != -1) {
-        var image = imagePath + "day.png";
-        setShiftImage(id, image);
+        image = imagePath + "day.png";
     } else if (id.indexOf("evening") != -1) {
-        var image = imagePath + "evening.png";
-        setShiftImage(id, image);
+        image = imagePath + "evening.png";
     } else if (id.indexOf("night") != -1) {
-        var image = imagePath + "night.png";
-        setShiftImage(id, image);
+        image = imagePath + "night.png";
     }
-    document.getElementById(id).className = "defaultButton";
+    setShiftImage(id, image);
 }
 
 // Given an element id and an image, sets the overlay (absent/excused) image
@@ -318,30 +281,8 @@ function shiftClicked(e) {
 // streamlined as I learn more.
 function sidebarButtonClicked(e) {
     // Get the image for the button that was pressed to use as the cursor
-    var otherStyle = "";
-/*    if (this.id == "adultSki") {
-        otherStyle = imagePath + "adultSki";
-    } else if (this.id == "adultSnowboard") {
-        otherStyle = imagePath + "adultSnowboard";
-    } else if (this.id == "childrenSki") {
-        otherStyle = imagePath + "childrenSki";
-    } else if (this.id == "childrenSnowboard") {
-        otherStyle = imagePath + "childrenSnowboard";
-    } else if (this.id == "racing") {
-        otherStyle = imagePath + "racing";
-    } else if (this.id == "removeShift") {
-        otherStyle = imagePath + "eraser";
-    } else if (this.id == "excused") {
-        otherStyle = imagePath + "excused";
-    } else if (this.id == "absent") {
-        otherStyle = imagePath + "absent";
-    } else if (this.id == "excuseCancel") {
-        otherStyle = imagePath + "excuseCancel";
-    } else if (this.id == "absentCancel") {
-        otherStyle = imagePath + "absentCancel";
-    } */
+    otherStyle = imagePath + this.id + ".cur"; // id == the image name
 
-    otherStyle = imagePath + this.id + ".cur"; // id is the same as the image name
     // Specify the "hot spot" for the cursor (i.e. the center) as the point
     // (32,32) in the image (might not work in IE)
     var cursorStyle = "url(" + otherStyle + ") 15 15, auto";
@@ -350,25 +291,18 @@ function sidebarButtonClicked(e) {
     // If the arrow button was clicked, just clear the cursor instead
     if (this.id == "arrow") { 
         cursorStyle = "auto";
-        cursorImage = ""; }
+        cursorImage = ""; 
+    }
 
     // Update the body cursor style
     document.body.style.cursor = cursorStyle;
 
     // Update each button's cursor
-    document.getElementById("adultSki").style.cursor = cursorStyle;
-    document.getElementById("adultSnowboard").style.cursor = cursorStyle;
-    document.getElementById("childrenSki").style.cursor = cursorStyle;
-    document.getElementById("childrenSnowboard").style.cursor = cursorStyle;
-    document.getElementById("racing").style.cursor = cursorStyle;     
-    document.getElementById("eraser").style.cursor = cursorStyle;
-    document.getElementById("arrow").style.cursor = cursorStyle;
     try {
-        document.getElementById("excused").style.cursor = cursorStyle;
-        document.getElementById("absent").style.cursor = cursorStyle;
-        document.getElementById("excuseCancel").style.cursor = cursorStyle;
-        document.getElementById("absentCancel").style.cursor = cursorStyle;
-    } catch (err) { }
+        for (var i = 0; i < sidebarIds.length; i++) {
+            document.getElementById(sidebarIds[i]).style.cursor = cursorStyle;
+        }
+    } catch(err) { } // catch error if not admin
 
     // Set the cursor style for each of the shift buttons in the calendar
     var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
