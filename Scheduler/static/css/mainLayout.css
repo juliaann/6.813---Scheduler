@@ -60,12 +60,12 @@ div.container{
 
 #sidebarPanel{
 	position: fixed;
-	top: 90px;
+	top: 93px;
 	padding-top: 1%;
-	width: 150px;
+	width: 115px;
 	left: 0px;
 	height: 100%;
-	z-index: 1;
+	z-index: 2;
 	background-color: rgb(190,217, 239);
 	border-right-style: solid;
 	border-right-color: black;
@@ -75,7 +75,7 @@ div.container{
 #pendingHeader{
 	position: fixed;
 	top: 93px;
-	left: 150px;
+	left: 115px;
 	z-index:20;
 	width: 100%;
 	margin: 0px;
@@ -89,7 +89,7 @@ div.container{
 #calendarPanel{
 	position: absolute;
 	margin: 1%;
-	left: 150px;
+	left: 115px;
 	top: 20px;
 	z-index: 1;
 }

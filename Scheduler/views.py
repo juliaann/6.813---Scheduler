@@ -32,12 +32,12 @@ def index(request):
             else:
                 return render_to_response('index.html', {'instructor': None,
                                                         'is_logged_in': "False",
-                                                        'error': 'Invalid Username'},
+                                                        'error': 'Invalid Username or Password'},
                                           context_instance=RequestContext(request))
         else:
             return render_to_response('index.html', {'instructor': None,
                                                      'is_logged_in': "False",
-                                                     'error': 'Invalid Password'},
+                                                     'error': 'Invalid Username or Password'},
                                       context_instance=RequestContext(request))
     try:
         request.session['username']
@@ -46,7 +46,7 @@ def index(request):
         print "not logged in"
         return render_to_response('index.html', {'instructor': None,
                                                  'is_logged_in': "False",
-                                                 'error': 'Please login'},
+                                                 'error': 'You must login to view that page!'},
                                   context_instance=RequestContext(request))
 
     user = User.objects.get(username = request.session['username'])
@@ -75,7 +75,7 @@ def logout(request):
         pass
     return render_to_response('index.html', {'instructor': None,
                                              'is_logged_in': "False",
-                                             'error': 'Please login'},
+                                             'error': 'You have successfully logged out. Please login again if you wish to make additional changes'},
                               context_instance=RequestContext(request))
 
 
@@ -93,7 +93,7 @@ def view_calendar(request, instr=None):
     except:
         return render_to_response('index.html', {'instructor': None,
                                                  'is_logged_in': "False",
-                                                 'error': 'Please login'},
+                                                 'error': 'You must login to view that page!'},
                                   context_instance=RequestContext(request))
 
     instr_name = instr.first_name + instr.last_name
