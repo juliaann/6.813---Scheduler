@@ -97,26 +97,24 @@
 
 <!-- Header is a div -->
 <div id="pendingHeader">
-{% if isAdmin == "True" %}
-<h1> You must hit Submit to record changes! </h1>
-{% else %}
-<h1> You must hit Submit Request to record changes! </h1>
-{% endif %}
-
 <table id=legend>
-	<tr>
+	<tr class>
+		{% if isAdmin == "True" %}
+		<td class=subMsg>You must hit Submit to record changes!</td>
+		{% else %}
+		<td class=subMsg> You must hit Submit Request to record changes!</td>
+		{% endif %}
 		<td class="leg"><img class="legImg" src="/static/images/day.png"></td>
 		<td class="leg"><img class="legImg" src="/static/images/evening.png"></td>
 		<td class="leg"><img class="legImg" src="/static/images/night.png"></td>
 	</tr>
 	<tr>
+		<td></td>
 		<td>Day</td>
 		<td>Evening</td>
 		<td>Night</td>
 	</tr>
 </table>
-<br>
-<br>
 {% if pending_changes != None %}
 
 	<table class="pendingChanges" id="pendingChangesTable">

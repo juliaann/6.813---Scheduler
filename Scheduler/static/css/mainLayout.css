@@ -248,16 +248,27 @@ a.nav:hover{
 }
 
 #legend{
-	position: fixed;
-	top: 150px;	
-	left: 100px;
+	position: relative;
+	top: 0px;	
+	left: 0px;
 	text-align: center;	
 }
 
+.pendingChanges{
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
 .leg{
-	width: 70px;
+	width: 50px;
+	padding: 0px;
+	border: 0px;
+	margin: 0px;
 }
 
+.subMsg{
+	font-size: xx-large;	
+}
 .legImg{
 	width: 30px;
 	height: 30px;
