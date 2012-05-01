@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block title %} Calendar {% endblock %}
 
 {% block content %}
@@ -96,7 +97,12 @@
 
 <!-- Header is a div -->
 <div id="pendingHeader">
-<h1> You must hit submit to record changes! </h1>
+{% if isAdmin == "True" %}
+<h1> You must hit Submit to record changes! </h1>
+{% else %}
+<h1> You must hit Submit Request to record changes! </h1>
+{% endif %}
+
 <table id=legend>
 	<tr>
 		<td class="leg"><img class="legImg" src="/static/images/day.png"></td>
@@ -109,6 +115,8 @@
 		<td>Night</td>
 	</tr>
 </table>
+<br>
+<br>
 {% if pending_changes != None %}
 
 	<table class="pendingChanges" id="pendingChangesTable">

@@ -249,8 +249,8 @@ a.nav:hover{
 
 #legend{
 	position: fixed;
-	top: 100px;	
-	left: 720px;
+	top: 150px;	
+	left: 100px;
 	text-align: center;	
 }
 
@@ -259,6 +259,6 @@ a.nav:hover{
 }
 
 .legImg{
-	width: 40px;
-	height: 40px;
+	width: 30px;
+	height: 30px;
 }
