@@ -54,12 +54,21 @@ function loadInitialShifts(){
         	}else{
         		var id = instructorSchedule[s][1] + instructorSchedule[s][2]
         	}
-        	if (s[0] == "Pending Add"){
+        	if (instructorSchedule[s][0] == "Pending Add"){
+        		console.log("Add");
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), true);
-        	}else if (s[0] == "Pending Delete"){
+        	}else if (instructorSchedule[s][0] == "Pending Delete"){
+        		console.log("Delete");
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), false);
         	}else{
         		setShiftImage(id, imagePath + getNameImage(instructorSchedule[s][3]));
+        		if (instructorSchedule[s][0] == "Absent"){
+        			console.log("absent");
+        			setShiftOverlayImage(id, imagePath + "absent.png");
+        		}else if (instructorSchedule[s][0] == "Excused"){
+        			console.log("excused");
+        			setShiftOverlayImage(id, imagePath + "excused.png");
+        		}
         	}
         }
     }

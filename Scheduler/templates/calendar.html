@@ -314,7 +314,57 @@
 	</tr>
 	</table>
 
-
+	{% for status, date, time, discipline in shifts %}
+		<script language="javascript" type="text/javascript">
+			var timeIdText = "";
+			if ("{{ time }}" == "Day") {
+				timeIdText = "morning";
+			}
+			else if ("{{ time }}" == "Evening") {
+				timeIdText = "evening";
+			}
+			else if ("{{ time }}" == "Night") {
+				timeIdText = "night";
+			}
+			var shiftButton = document.getElementById("{{ date.isoformat }}" + timeIdText);
+			
+			if ("{{ status }}" != "Pending Add") {
+				if ("{{ time }}" == "Day") {
+					shiftButton.className = "dayButton";
+				}
+				else if ("{{ time }}" == "Evening") {
+					shiftButton.className = "eveningButton";
+				}
+				else if ("{{ time }}" == "Night") {
+					shiftButton.className = "nightButton";
+				}
+			
+				if ("{{ discipline }}" == "Adult Ski") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/adultSki.png">';
+				}
+				else if ("{{ discipline }}" == "Adult Board") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/adultSnowboard.png">';
+				}
+				else if ("{{ discipline }}" == "Child Ski") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/childrenSki.png">';
+				}
+				else if ("{{ discipline }}" == "Child Board") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/childrenSnowboard.png">';
+				}
+				else if ("{{ discipline }}" == "Race") {
+					shiftButton.innerHTML = '<img class="calendarImage" src="/static/images/racing.png">';
+				}
+			}
+			
+			if ("{{ status }}" == "Excused") {
+				shiftButton.innerHTML += '<img class="overlayImage" src="/static/images/excused.png">';
+			}
+			else if ("{{ status }}" == "Absent") {
+				shiftButton.innerHTML += '<img class="overlayImage" src="/static/images/absent.png">';
+			}
+			
+		</script>
+	{% endfor %}
 
 </div>
 
