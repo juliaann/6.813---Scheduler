@@ -4,6 +4,7 @@ var imagePath = "/static/images/";
 var isAdmin;
 var instructorSchedule;
 var validShifts;
+var cnt = 0;
 
 
 // Arrays of the sidebar buttons for for loops -- note: these must remain
@@ -39,12 +40,60 @@ function addShiftClickListener(id) {
 function loadData(res, status){
 	var response = JSON.parse(res.responseText);
 	isAdmin = response.isAdmin;
+	console.log(isAdmin);
 	instructorSchedule = response.shifts;
 	validShifts = response.validShifts;
 	loadInitialShifts();
+
+}
+
+//Add a pending message
+//Takes in a shift, which is an array in the format of [status, date, time, discipline]
+function addPendingMsg(shift){
+	table = document.getElementById("pendingChangesTable");
+	var row = table.insertRow(-1);
+	var cell0 = row.insertCell(0);
+	console.log(shift[1]);
+	var date = formatDate(shift[1]);
+	console.log(date)
+	cell0.innerHTML = shift[3] + ": " + shift[2].charAt(0).toUpperCase() + shift[2].slice(1) + " on " + date + " is " + shift[0]
+	if(isAdmin){
+		console.log("Admin");
+		var cell1 = row.insertCell(1);
+		cell1.innerHTML = "<input type='radio' name=" + cnt + " value='Accept'>"
+		cell1.className = ("acceptColumn");
+		var cell2 = row.insertCell(2);
+		cell2.innerHTML = "<input type='radio' name=" + cnt + " value='Reject'>"
+		cell2.className = ("rejectColumn");
+		cnt++;
+	}
+
+	
+}
+function formatDate(date){
+	var year = date.slice(0,4);
+	var month = date.slice(5,7);
+	console.log("month" + month);
+	var day = date.slice(8,10);
+	console.log("day" + day);
+	if (month == "12"){
+		console.log("dec");
+		month = "Dec.";
+	}else if(month == "01"){
+		console.log('jan');
+		month = "Jan.";
+	}else if(month == "02"){
+		console.log('feb');
+		month = "Feb.";
+	}else if(month == "03"){
+		console.log('march');
+		month = "Mar.";
+	}
+	return month + " " + day + ", " + year;
 }
 
 //Set the initial images for the shifts that the instructor is scheduled for
+//Set message for pending shifts
 function loadInitialShifts(){
     if (instructorSchedule != undefined){
         for (var s = 0; s < instructorSchedule.length; s++){
@@ -57,9 +106,11 @@ function loadInitialShifts(){
         	if (instructorSchedule[s][0] == "Pending Add"){
         		console.log("Add");
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), true);
+        		addPendingMsg(instructorSchedule[s]);
         	}else if (instructorSchedule[s][0] == "Pending Delete"){
         		console.log("Delete");
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), false);
+        		addPendingMsg(instructorSchedule[s]);
         	}else{
         		setShiftImage(id, imagePath + getNameImage(instructorSchedule[s][3]));
         		if (instructorSchedule[s][0] == "Absent"){
@@ -70,6 +121,19 @@ function loadInitialShifts(){
         			setShiftOverlayImage(id, imagePath + "excused.png");
         		}
         	}
+        }
+        // Add click listeners to the radio buttons (pending changes for admin)
+        var pendingTable = document.getElementById("pendingChangesTable");
+        var pendingRows = pendingTable.rows;
+        console.log(pendingRows);
+        for (var i = 0; i < pendingRows.length; i++) {
+            var pendingCells = pendingRows[i].cells;
+            if (pendingCells.length > 0) {
+                var acceptButton = pendingCells[1].firstChild;
+                var rejectButton = pendingCells[2].firstChild;
+                acceptButton.addEventListener('click', radioButtonClicked, false);
+                rejectButton.addEventListener('click', radioButtonClicked, false);
+            }
         }
     }
 
@@ -117,37 +181,19 @@ $(document).ready(function() {
         }
     }
 
-    // Add click listeners to the radio buttons (pending changes for admin)
-    var pendingTable = document.getElementById("pendingChangesTable");
-    var pendingRows = pendingTable.rows;
-    for (var i = 0; i < pendingRows.length; i++) {
-        var pendingCells = pendingRows[i].cells;
-        if (pendingCells.length > 0) {
-            var acceptButton = pendingCells[1].firstChild;
-            var rejectButton = pendingCells[2].firstChild;
-            acceptButton.addEventListener('click', radioButtonClicked, false);
-            rejectButton.addEventListener('click', radioButtonClicked, false);
-        }
-    }
 });
 
 function radioButtonClicked(e) {
     // Find the message corresponding to this radio button
+
     var msg = "INVALID";
     var pendingTable = document.getElementById("pendingChangesTable");
-    var pendingRows = pendingTable.rows;
-    for (var i = 0; i < pendingRows.length; i++) {
-        var pendingCells = pendingRows[i].cells;
-        if (pendingCells.length > 0) {
-            if (pendingCells[1].firstChild.name == this.name) {
-                msg = pendingCells[0].innerHTML;
-                break;
-            }
-        }
-    }
+    var pendingRow = pendingTable.rows[parseInt(this.name)+1];
+    msg = pendingRow.cells[0].innerHTML;
+    console.log(msg);
 
     // Get the text and parse out the discipline, time, date, and status
-    var discipline = msg.substring(1, msg.indexOf(":"));
+    var discipline = msg.substring(0, msg.indexOf(":"));
     msg = msg.substring(msg.indexOf(":")+2); // ignore ": "
 
     var time = msg.substring(0, msg.indexOf(" "));
@@ -167,17 +213,20 @@ function radioButtonClicked(e) {
     var year = date.substring(commaIdx+2);
     time = (time == "Day") ? "Morning" : time; // morning not day
     var id = year + "-" + month + "-" + day + time.toLowerCase();
+    console.log(id);
 
     // If it's a pending Add, get the image and set the shift to that image
     if (status == "Add") {
         if (this.value == "Accept") {
             // Get the image
+        	console.log(discipline);
             var image = getNameImage(discipline);
 
             // Store the original shift value, if one exists
             pendingChanges[id] = document.getElementById(id).innerHTML;
     
             // Set the image for that shift
+            console.log(image);
             setShiftImage(id, imagePath + image);
 
         } else {

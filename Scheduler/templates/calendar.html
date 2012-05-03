@@ -116,27 +116,18 @@
 		<td>Night</td>
 	</tr>
 </table>
-{% if pending_changes != None %}
 
-	<table class="pendingChanges" id="pendingChangesTable">
-		<tr>
-			<th></th>
-			{% if isAdmin == "True" %}
-				<th class="acceptColumn">Accept</th>
-				<th class="rejectColum">Reject</th>
-			{% endif %}
-		</tr>
-		{% for status, date, time, discipline, cnt in pending_changes %}
-			<tr>
-				<td> {{discipline }}: {{ time }} on {{ date }} is {{ status }}</td>
-				{% if isAdmin == "True" %}
-					<td class="acceptColumn"><input type="radio" name= {{ cnt }} value="Accept"></td>
-					<td class="rejectColumn"><input type="radio" name= {{ cnt }} value="Reject"></td>
-				{% endif %}
-			<tr>
-		{% endfor %}
-	</table>
+<table class="pendingChanges" id="pendingChangesTable">
+{% if pending_changes != None %}
+	<tr>
+		<th></th>
+		{% if isAdmin == "True" %}
+			<th class="acceptColumn">Accept</th>
+			<th class="rejectColum">Reject</th>
+		{% endif %}
+	</tr>
 {% endif %}
+</table>
 
 <div id=instructor>  {{ instructor }}'s Schedule </div>
 </div>
