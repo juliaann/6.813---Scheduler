@@ -123,9 +123,7 @@ def getSchedule(request):
         possible_shifts.append([shift_name, p.hasChildrensSki, p.hasChildrensBoard, p.hasAdultSki, p.hasAdultBoard, p.hasRace])
     
         
-    print "hi"
     response_dict = {'isAdmin': isAdmin,'validShifts': possible_shifts, 'shifts': my_shifts,'pending_changes' : pending_changes}
-    print response_dict
     return HttpResponse(simplejson.dumps(response_dict))
     
 

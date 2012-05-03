@@ -40,7 +40,6 @@ function addShiftClickListener(id) {
 function loadData(res, status){
 	var response = JSON.parse(res.responseText);
 	isAdmin = response.isAdmin;
-	console.log(isAdmin);
 	instructorSchedule = response.shifts;
 	validShifts = response.validShifts;
 	loadInitialShifts();
@@ -53,12 +52,9 @@ function addPendingMsg(shift){
 	table = document.getElementById("pendingChangesTable");
 	var row = table.insertRow(-1);
 	var cell0 = row.insertCell(0);
-	console.log(shift[1]);
 	var date = formatDate(shift[1]);
-	console.log(date)
 	cell0.innerHTML = shift[3] + ": " + shift[2].charAt(0).toUpperCase() + shift[2].slice(1) + " on " + date + " is " + shift[0]
-	if(isAdmin){
-		console.log("Admin");
+	if(isAdmin == "True"){
 		var cell1 = row.insertCell(1);
 		cell1.innerHTML = "<input type='radio' name=" + cnt + " value='Accept'>"
 		cell1.className = ("acceptColumn");
@@ -73,20 +69,14 @@ function addPendingMsg(shift){
 function formatDate(date){
 	var year = date.slice(0,4);
 	var month = date.slice(5,7);
-	console.log("month" + month);
 	var day = date.slice(8,10);
-	console.log("day" + day);
 	if (month == "12"){
-		console.log("dec");
 		month = "Dec.";
 	}else if(month == "01"){
-		console.log('jan');
 		month = "Jan.";
 	}else if(month == "02"){
-		console.log('feb');
 		month = "Feb.";
 	}else if(month == "03"){
-		console.log('march');
 		month = "Mar.";
 	}
 	return month + " " + day + ", " + year;
@@ -97,27 +87,22 @@ function formatDate(date){
 function loadInitialShifts(){
     if (instructorSchedule != undefined){
         for (var s = 0; s < instructorSchedule.length; s++){
-        	console.log(instructorSchedule[s]);
         	if (instructorSchedule[s][2] == "day"){
         		var id = instructorSchedule[s][1] + "morning";
         	}else{
         		var id = instructorSchedule[s][1] + instructorSchedule[s][2]
         	}
         	if (instructorSchedule[s][0] == "Pending Add"){
-        		console.log("Add");
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), true);
         		addPendingMsg(instructorSchedule[s]);
         	}else if (instructorSchedule[s][0] == "Pending Delete"){
-        		console.log("Delete");
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), false);
         		addPendingMsg(instructorSchedule[s]);
         	}else{
         		setShiftImage(id, imagePath + getNameImage(instructorSchedule[s][3]));
         		if (instructorSchedule[s][0] == "Absent"){
-        			console.log("absent");
         			setShiftOverlayImage(id, imagePath + "absent.png");
         		}else if (instructorSchedule[s][0] == "Excused"){
-        			console.log("excused");
         			setShiftOverlayImage(id, imagePath + "excused.png");
         		}
         	}
@@ -125,7 +110,6 @@ function loadInitialShifts(){
         // Add click listeners to the radio buttons (pending changes for admin)
         var pendingTable = document.getElementById("pendingChangesTable");
         var pendingRows = pendingTable.rows;
-        console.log(pendingRows);
         for (var i = 0; i < pendingRows.length; i++) {
             var pendingCells = pendingRows[i].cells;
             if (pendingCells.length > 0) {
@@ -144,7 +128,6 @@ function loadInitialShifts(){
 $(document).ready(function() {
      var instructor = document.getElementById("instructor").innerHTML;
      instructor = instructor.replace("'s Schedule", "");
-     console.log(instructor);
      var data = {name: instructor};
      var args = { type:"POST", url:"/calendar/getSchedule/", data:data, complete:loadData };
 
@@ -190,7 +173,6 @@ function radioButtonClicked(e) {
     var pendingTable = document.getElementById("pendingChangesTable");
     var pendingRow = pendingTable.rows[parseInt(this.name)+1];
     msg = pendingRow.cells[0].innerHTML;
-    console.log(msg);
 
     // Get the text and parse out the discipline, time, date, and status
     var discipline = msg.substring(0, msg.indexOf(":"));
@@ -213,20 +195,17 @@ function radioButtonClicked(e) {
     var year = date.substring(commaIdx+2);
     time = (time == "Day") ? "Morning" : time; // morning not day
     var id = year + "-" + month + "-" + day + time.toLowerCase();
-    console.log(id);
 
     // If it's a pending Add, get the image and set the shift to that image
     if (status == "Add") {
         if (this.value == "Accept") {
             // Get the image
-        	console.log(discipline);
             var image = getNameImage(discipline);
 
             // Store the original shift value, if one exists
             pendingChanges[id] = document.getElementById(id).innerHTML;
     
             // Set the image for that shift
-            console.log(image);
             setShiftImage(id, imagePath + image);
 
         } else {
@@ -293,8 +272,6 @@ function restoreShiftImage(id) {
 // Given an element id and an image, sets the image src in the innerHTML
 function setShiftImage(id, image) {
     // Set the image
-	console.log(id)
-	console.log(image)
     var b = document.getElementById(id);
     b.innerHTML = '<img class="calendarImage" src="' + image + '">';
     setAppropriateClassName(id);
@@ -352,20 +329,79 @@ function hasDiscipline(id) {
            (b.innerHTML.indexOf("night") == -1)
 }
 
+function deleteShift(id){
+	var date = id.slice(0,10);
+	var time = id.slice(10);
+	clearShiftImage(id);
+	var tempSch = instructorSchedule.slice(0);
+	instructorSchedule = instructorSchedule.slice(0,0);
+	for(var i=0; i<tempSch.length; i++){
+		if (tempSch[i][1] != date || tempSch[i][2] != time){
+			instructorSchedule.push(tempSch[i]);
+		}
+	}
+}
+
+function addShift(id, status, discipline){
+	var date = id.slice(0,10);
+	var time = id.slice(10);
+	console.log(status);
+	instructorSchedule.push([status, date, time, discipline])
+}
+
+function changeStatus(id, newStatus){
+	var date = id.slice(0,10);
+	var time = id.slice(10);
+	for(var i=0; i<instructorSchedule.length; i++){
+		if (instructorSchedule[i][1] == date && instructorSchedule[i][2] == time){
+			instructorSchedule[i][0] = newStatus;
+		}
+	}
+}
+
+function getDisciplineFromImage(imageName){
+    if (imageName == "childrenSki"){
+    	discipline = "Child Ski";
+    }else if(imageName == "childrenSnowboard"){
+    	discipline = "Child Board";
+    }else if (imageName == "adultSki"){
+    	discipline = "Adult Ski";
+    }else if (imageName == "adultSnowboard"){
+    	discipline = "Adult Board";
+    }else if (imageName == "racing"){
+    	discipline = "Racing";
+    }else{
+    	discipline = "INVALID";
+    }
+    return discipline
+}
+
 // Uses the current cursor to change the image for the shift
 function shiftClicked(e) {
-
     // If the cursor is the eraser, remove the shift
     if (cursorImage.indexOf("eraser.") != -1) {
-        clearShiftImage(this.id);
+    	if (isAdmin == "True"){
+    		deleteShift(this.id);	
+    	}else{
+    		curImage = document.getElementById(this.id).innerHTML;
+    		curImage = curImage.substring(32, curImage.indexOf(">"));
+    		changeStatus(this.id, "Pending Delete");
+    		clearShiftImage(this.id);
+    		setPendingImage(this.id, curImage, false);
+    		var date = this.id.slice(0,10);
+    		var time = this.id.slice(10);
+    		var discipline = getDisciplineFromImage(curImage.substring(15, curImage.indexOf(".png")));
+    		addPendingMsg(["Pending Delete", date, time, discipline])
+    	}
+        
     }
 
     // If it's excused add that image to the button as an overlay
     else if (cursorImage.indexOf("excused.") != -1) {
         // If there is no discipline set, ignore the button press 
         if (hasDiscipline(this.id)) {
-            
             // Set the overlay image to be excused
+        	changeStatus(this.id, "Excused");
             setShiftOverlayImage(this.id, imagePath + "excused.png");
         }
     }
@@ -376,6 +412,7 @@ function shiftClicked(e) {
         if (hasDiscipline(this.id)) {
 
             // Set the overlay image to be absent
+        	changeStatus(this.id, "Absent");
             setShiftOverlayImage(this.id, imagePath + "absent.png");
         }
     }
@@ -383,6 +420,7 @@ function shiftClicked(e) {
     // Check if we're just clearing the excused label
     else if (cursorImage.indexOf("excuseCancel.") != -1) {
         if (this.innerHTML.indexOf("excused") != -1) {
+        	changeStatus(this.id, "Normal");
             clearShiftOverlayImage(this.id);
         }
     }
@@ -390,6 +428,7 @@ function shiftClicked(e) {
     // Check if we're just clearing the absent label
     else if (cursorImage.indexOf("absentCancel.") != -1) {
         if (this.innerHTML.indexOf("absent") != -1) {
+        	changeStatus(this.id, "Normal");
             clearShiftOverlayImage(this.id);
         }
     }
@@ -397,8 +436,25 @@ function shiftClicked(e) {
     // Otherwise, if it's a valid discipline, set the shift icon
     else if (cursorImage != "") {
         var cursorName = cursorImage.substring(0, cursorImage.indexOf("."));
-        setShiftImage(this.id, cursorName + ".png");
+        discipline = getDisciplineFromImage(cursorName.slice(15));
+
+        if(isAdmin == "True"){
+        	deleteShift(this.id);
+        	addShift(this.id, "Normal", discipline);
+        	setShiftImage(this.id, cursorName + ".png");
+        }else{
+        	addShift(this.id, "Pending Add", discipline);
+        	setPendingImage(this.id, cursorName + ".png", true);
+    		curImage = document.getElementById(this.id).innerHTML;
+    		curImage = curImage.substring(32, curImage.indexOf(">"));
+    		var date = this.id.slice(0,10);
+    		var time = this.id.slice(10);
+    		var discipline = getDisciplineFromImage(curImage.substring(15, curImage.indexOf(".png")));
+    		addPendingMsg(["Pending Add", date, time, discipline])
+        }
+        
     }
+    console.log(instructorSchedule.length);
 }
 
 // It's not pretty, but it works.  I will keep trying to make it more 
