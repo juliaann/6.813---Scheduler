@@ -39,12 +39,33 @@ function addShiftClickListener(id) {
 function loadData(res, status){
 	var response = JSON.parse(res.responseText);
 	isAdmin = response.isAdmin;
-	console.log(isAdmin);
 	instructorSchedule = response.shifts;
-	console.log(instructorSchedule);
 	validShifts = response.validShifts;
-	console.log(validShifts);
+	loadInitialShifts();
 }
+
+//Set the initial images for the shifts that the instructor is scheduled for
+function loadInitialShifts(){
+    if (instructorSchedule != undefined){
+        for (var s = 0; s < instructorSchedule.length; s++){
+        	console.log(instructorSchedule[s]);
+        	if (instructorSchedule[s][2] == "day"){
+        		var id = instructorSchedule[s][1] + "morning";
+        	}else{
+        		var id = instructorSchedule[s][1] + instructorSchedule[s][2]
+        	}
+        	if (s[0] == "Pending Add"){
+        		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), true);
+        	}else if (s[0] == "Pending Delete"){
+        		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), false);
+        	}else{
+        		setShiftImage(id, imagePath + getNameImage(instructorSchedule[s][3]));
+        	}
+        }
+    }
+
+}
+
 
 // Add the click listener to each sidebar button
 $(document).ready(function() {
@@ -142,18 +163,7 @@ function radioButtonClicked(e) {
     if (status == "Add") {
         if (this.value == "Accept") {
             // Get the image
-            var image;
-            if (discipline == "Adult Ski") {
-                image = "adultSki.png";
-            } else if (discipline == "Adult Board") {
-                image = "adultSnowboard.png";
-            } else if (discipline == "Child Ski") {
-                image = "childrenSki.png";
-            } else if (discipline == "Child Board") {
-                image = "childrenSnowboard.png";
-            } else if (discipline == "Racing") {
-                image = "racing.png";
-            }
+            var image = getNameImage(discipline);
 
             // Store the original shift value, if one exists
             pendingChanges[id] = document.getElementById(id).innerHTML;
@@ -182,6 +192,22 @@ function radioButtonClicked(e) {
     }
 }
 
+//Gets the name of an image given a discipline
+function getNameImage(discipline){
+    var image;
+    if (discipline == "Adult Ski") {
+        image = "adultSki.png";
+    } else if (discipline == "Adult Board") {
+        image = "adultSnowboard.png";
+    } else if (discipline == "Child Ski") {
+        image = "childrenSki.png";
+    } else if (discipline == "Child Board") {
+        image = "childrenSnowboard.png";
+    } else if (discipline == "Racing" || discipline == "Race") {
+        image = "racing.png";
+    }
+    return image
+}
 // Sets the appropriate class name for the shift button, effectively setting
 // its background color
 function setAppropriateClassName(id) {
@@ -208,6 +234,18 @@ function restoreShiftImage(id) {
 
 // Given an element id and an image, sets the image src in the innerHTML
 function setShiftImage(id, image) {
+    // Set the image
+	console.log(id)
+	console.log(image)
+    var b = document.getElementById(id);
+    b.innerHTML = '<img class="calendarImage" src="' + image + '">';
+    setAppropriateClassName(id);
+}
+
+//TANYA TODO: Make it so that the image has a boarder around it since these images are pending
+//Add is a boolean, If it is a pending add, it is  true, otherwise it is false
+//Given an element id and an image, sets the image src in the innerHTML
+function setPendingImage(id, image, add){
     // Set the image
     var b = document.getElementById(id);
     b.innerHTML = '<img class="calendarImage" src="' + image + '">';
