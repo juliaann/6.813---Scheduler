@@ -1,6 +1,9 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.http import HttpResponse
+from django.http import QueryDict
 from django.contrib.auth import authenticate, login, logout
+from django.utils import simplejson
 from models import *
 import populateShifts
 import datetime
@@ -78,12 +81,57 @@ def logout(request):
                                              'error': 'You have successfully logged out. Please login again if you wish to make additional changes'},
                               context_instance=RequestContext(request))
 
+def lookupUserName(realName):
+    for instr in list(User.objects.all()):
+        if instr.first_name + " " + instr.last_name == realName:
+            print instr
+            return instr
 
+
+    
+#Returns a list of the users schedule
+def getSchedule(request):
+    instructor = request.POST['name'].strip()
+    logged_in = User.objects.get(username = request.session['username'])
+    print logged_in
+    instr = lookupUserName(instructor)
+    
+    if logged_in.groups.all()[0].name == "Admin":
+        isAdmin = "True"
+    else:
+        isAdmin = "False"
+        
+    shifts = list(ScheduledShifts.objects.filter(instructor = instr))
+    my_shifts = []
+    pending_changes = []
+    cnt = 0
+    for s in shifts:
+        shift_status = get_human_readable_status(s.status)
+        shift_time = get_human_readable_time(s.shift.all()[0].time)
+        shift_discipline = get_human_readable_discipline(s.discipline)
+        my_shifts.append([shift_status, s.shift.all()[0].date.isoformat(), shift_time.lower(), shift_discipline])
+        if s.status == 1 or s.status == 2:
+            pending_changes.append([shift_status, s.shift.all()[0].date.isoformat(), shift_time.lower(), shift_discipline, cnt])
+            cnt += 1
+    if len(pending_changes) == 0:
+        pending_changes = None
+    possible_shifts = []
+    valid_shifts = list(Shift.objects.all())
+    for p in valid_shifts:
+        shift_time = get_human_readable_time(p.time)
+        shift_name = str(p.date.isoformat()) + shift_time.lower()
+        possible_shifts.append([shift_name, p.hasChildrensSki, p.hasChildrensBoard, p.hasAdultSki, p.hasAdultBoard, p.hasRace])
     
         
+    print "hi"
+    response_dict = {'isAdmin': isAdmin,'validShifts': possible_shifts, 'shifts': my_shifts,'pending_changes' : pending_changes}
+    print response_dict
+    return HttpResponse(simplejson.dumps(response_dict))
     
 
+
 def view_calendar(request, instr=None):
+    print "calendar"
     try:
         logged_in = User.objects.get(username = request.session['username'])
         if instr == None:
@@ -96,7 +144,7 @@ def view_calendar(request, instr=None):
                                                  'error': 'You must login to view that page!'},
                                   context_instance=RequestContext(request))
 
-    instr_name = instr.first_name + instr.last_name
+    instr_name = instr.first_name + " " + instr.last_name
     if logged_in.groups.all()[0].name == "Admin":
         isAdmin = "True"
     else:

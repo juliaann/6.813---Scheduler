@@ -1,6 +1,10 @@
 // Useful global variables for updating the calendar view via user mouse clicks
 var cursorImage = "";
 var imagePath = "/static/images/";
+var isAdmin;
+var instructorSchedule;
+var validShifts;
+
 
 // Arrays of the sidebar buttons for for loops -- note: these must remain
 // in this order -- for loops should be surrounded in a try/catch block
@@ -29,8 +33,32 @@ function addShiftClickListener(id) {
     }
 }
 
+//Load all data from response into memory
+//Need whether instructor is admin, whose calendar is being viewed, what possible shifts are, and
+//what scheduled shifts are
+function loadData(res, status){
+	var response = JSON.parse(res.responseText);
+	isAdmin = response.isAdmin;
+	console.log(isAdmin);
+	instructorSchedule = response.shifts;
+	console.log(instructorSchedule);
+	validShifts = response.validShifts;
+	console.log(validShifts);
+}
+
 // Add the click listener to each sidebar button
 $(document).ready(function() {
+     var instructor = document.getElementById("instructor").innerHTML;
+     instructor = instructor.replace("'s Schedule", "");
+     console.log(instructor);
+     var data = {name: instructor};
+     var args = { type:"POST", url:"/calendar/getSchedule/", data:data, complete:loadData };
+
+     $.ajax(args)
+    //Add click listener to submit button
+    $("#submit").click( function() {
+	console.log("submit");
+    });
     // Add the click listener to the buttons for everybody
     try {
         for (var i = 0; i < sidebarIds.length; i++) {

@@ -78,14 +78,14 @@
 
         <tr>
             <td colspan=2 id="submitCell">
-                <button id="submit" onclick="document.location.href='/'; return false;">Submit</button>
+                <button id="submit">Submit</button>
             </td>
         </tr>
 
         {% else %}
         <tr>
             <td colspan=2 id="submitCell">
-                <button id="submit" onclick="document.location.href='/'; return false;">Submit Request</button>
+                <button id="submit">Submit Request</button>
             </td>
         </tr>
 
@@ -97,6 +97,7 @@
 
 <!-- Header is a div -->
 <div id="pendingHeader">
+
 <table id=legend>
 	<tr class>
 		{% if isAdmin == "True" %}
@@ -137,6 +138,7 @@
 	</table>
 {% endif %}
 
+<div id=instructor>  {{ instructor }}'s Schedule </div>
 </div>
 
 <!-- Calendar panel is a div, containing the individual months as the children -->
