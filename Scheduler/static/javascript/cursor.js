@@ -123,6 +123,9 @@ function loadInitialShifts(){
 
 }
 
+function submitSuccess(){
+	
+}
 
 // Add the click listener to each sidebar button
 $(document).ready(function() {
@@ -131,10 +134,30 @@ $(document).ready(function() {
      var data = {name: instructor};
      var args = { type:"POST", url:"/calendar/getSchedule/", data:data, complete:loadData };
 
-     $.ajax(args)
+     $.ajax(args);
     //Add click listener to submit button
     $("#submit").click( function() {
 	console.log("submit");
+	var subSch = confirm("Are you sure you want to submit your schedule?");
+	if (subSch == true){
+		console.log(instructorSchedule);
+		submitSchedule = [];
+		for(var k = 0; k < instructorSchedule.length; k++){
+			submitSchedule = submitSchedule.concat(instructorSchedule[k]);
+		}
+		console.log(submitSchedule);
+		data = {name: instructor, instructorShifts: submitSchedule.toString()};
+		console.log(data);
+		var args = { traditional: true, 
+				type:"POST", 
+				url:"/submitSchedule/", 
+				dataType: "text", 
+				data:data,
+				complete: function(){
+					top.location.href = "/submitSuccess";
+				}};
+		$.ajax(args);
+	}
     });
     // Add the click listener to the buttons for everybody
     try {

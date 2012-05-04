@@ -3,6 +3,13 @@
 {% block title %} Home {% endblock %}
 
 {% block content %}
+{% if error = "Your Schedule was successfully submitted" %}
+	{% if isAdmin == "True" %}
+		<div class="submitSuccess">Your Schedule was successfully submitted!</div>
+	{% else %}
+		<div class="submitSuccess">Your Schedule Change Request was successfully submitted!</div>
+	{% endif %}
+{% endif %}
 {% if is_logged_in == "False" %}
 	{% if error == "Please login" %}
 		<div class="message"> {{ error }} </div>

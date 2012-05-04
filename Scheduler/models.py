@@ -24,8 +24,8 @@ class Shift(models.Model):
 
 
 class ScheduledShifts(models.Model):
-    shift = models.ManyToManyField(Shift)
-    instructor = models.ManyToManyField(User)
+    shift = models.ForeignKey(Shift)
+    instructor = models.ForeignKey(User)
 
     SHIFT_STATUS = (
         (0, u'Normal'),

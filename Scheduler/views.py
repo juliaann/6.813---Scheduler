@@ -7,10 +7,12 @@ from django.utils import simplejson
 from models import *
 import populateShifts
 import datetime
-
+import sys
+import populateShifts
 
 def index(request):
-    print request.method
+    #populateShifts.add_shifts()
+    print request
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -67,6 +69,32 @@ def index(request):
                                          'is_logged_in': "True",
                                          'error': None},
                           context_instance=RequestContext(request))
+def submitSuccess(request):
+    try:
+        request.session['username']
+        print request.session['username']
+    except:
+        print "not logged in"
+        return render_to_response('index.html', {'instructor': None,
+                                                 'is_logged_in': "False",
+                                                 'error': 'You must login to view that page!'},
+                                  context_instance=RequestContext(request))
+
+    user = User.objects.get(username = request.session['username'])
+
+    if user.groups.all()[0].name == "Admin":
+        isAdmin = "True"
+        allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
+    else:
+        isAdmin = "False"
+        allInstr = [[user.username, user.first_name + " " + user.last_name]]
+            
+    return render_to_response('index.html', {'instructor': request.session['username'],
+                                         'isAdmin': isAdmin,
+                                         'allInstr': allInstr,
+                                         'is_logged_in': "True",
+                                         'error': "Your Schedule was successfully submitted"},
+                          context_instance=RequestContext(request))
 
 def logout(request):
     #user = User.objects.get(username = request.session['username'])
@@ -91,6 +119,7 @@ def lookupUserName(realName):
     
 #Returns a list of the users schedule
 def getSchedule(request):
+    print request.POST
     instructor = request.POST['name'].strip()
     logged_in = User.objects.get(username = request.session['username'])
     print logged_in
@@ -107,11 +136,11 @@ def getSchedule(request):
     cnt = 0
     for s in shifts:
         shift_status = get_human_readable_status(s.status)
-        shift_time = get_human_readable_time(s.shift.all()[0].time)
+        shift_time = get_human_readable_time(s.shift.time)
         shift_discipline = get_human_readable_discipline(s.discipline)
-        my_shifts.append([shift_status, s.shift.all()[0].date.isoformat(), shift_time.lower(), shift_discipline])
+        my_shifts.append([shift_status, s.shift.date.isoformat(), shift_time.lower(), shift_discipline])
         if s.status == 1 or s.status == 2:
-            pending_changes.append([shift_status, s.shift.all()[0].date.isoformat(), shift_time.lower(), shift_discipline, cnt])
+            pending_changes.append([shift_status, s.shift.date.isoformat(), shift_time.lower(), shift_discipline, cnt])
             cnt += 1
     if len(pending_changes) == 0:
         pending_changes = None
@@ -126,8 +155,72 @@ def getSchedule(request):
     response_dict = {'isAdmin': isAdmin,'validShifts': possible_shifts, 'shifts': my_shifts,'pending_changes' : pending_changes}
     return HttpResponse(simplejson.dumps(response_dict))
     
+def submitSchedule(request):
+    print request.POST
+    schedule = request.POST['instructorShifts']
+    print schedule
+    instr = request.POST['name'].strip()
+    instr = lookupUserName(instr)
+    instr = User.objects.get(username = instr)
+    schedule = schedule.split(",")
+    listSchedule = []
+    while len(schedule) > 0:
+        status = schedule[0]
+        if status == 'Normal':
+            status = 0
+        elif status == 'Pending Add':
+            status = 1
+        elif status == 'Pending Delete':
+            status = 2
+        elif status == 'Excused':
+            status = 3
+        elif status == 'Absent':
+            status = 4
+        year = schedule[1][0:4]
+        month = schedule[1][5:7]
+        day = schedule[1][8:10]
+        date = datetime.date(int(year), int(month), int(day))
+        time = schedule[2]
+        if time == 'day' or time == 'morning':
+            time = 0
+        elif time == 'evening':
+            time = 1
+        elif time == 'night':
+            time = 2
+        discipline = schedule[3]
+        if discipline == 'Adult Ski':
+            discipline = 0
+        elif discipline == 'Adult Board':
+            discipline = 1
+        elif discipline == 'Child Ski':
+            discipline = 2
+        elif discipline == 'Child Board':
+            discipline = 3
+        elif discipline == 'Race' or discipline == "Racing":
+            discipline = 4
+        listSchedule.append([status, date, time, discipline])
+        schedule = schedule[4:]
+        
+    ScheduledShifts.objects.filter(instructor = instr).delete()
+    print listSchedule
+    for schShift in listSchedule:
+        s = Shift.objects.get(date = schShift[1], time = schShift[2])
+        print schShift[3]
+        myShift = ScheduledShifts(shift = s, instructor = instr, status = schShift[0], discipline = schShift[3])
 
-
+        #myShift = ScheduledShifts(status = schShift[0], discipline = schShift[3])
+        print myShift.status
+        print myShift.discipline
+        print myShift.shift
+        print myShift.instructor
+        myShift.save()
+##    return render_to_response('index.html', {'instructor': request.session['username'],
+##                                             'is_logged_in': "True",
+##                                             'error': 'You have successfuly submitted your schedule!'},
+##                              context_instance=RequestContext(request))
+    
+        
+    return HttpResponse()
 def view_calendar(request, instr=None):
     print "calendar"
     try:
@@ -163,11 +256,11 @@ def view_calendar(request, instr=None):
     cnt = 0
     for s in shifts:
         shift_status = get_human_readable_status(s.status)
-        shift_time = get_human_readable_time(s.shift.all()[0].time)
+        shift_time = get_human_readable_time(s.shift.time)
         shift_discipline = get_human_readable_discipline(s.discipline)
-        my_shifts.append([shift_status, s.shift.all()[0].date, shift_time, shift_discipline])
+        my_shifts.append([shift_status, s.shift.date, shift_time, shift_discipline])
         if s.status == 1 or s.status == 2:
-            pending_changes.append([shift_status, s.shift.all()[0].date, shift_time, shift_discipline, cnt])
+            pending_changes.append([shift_status, s.shift.date, shift_time, shift_discipline, cnt])
             cnt += 1
     if len(pending_changes) == 0:
         pending_changes = None

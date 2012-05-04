@@ -144,6 +144,10 @@ div.container{
 	position: absolute;
 	top: 100px;
 }
+.submitSuccess{
+	position: absolute;
+	top: 120px;
+}
 
 #authError{
 	position: absolute;

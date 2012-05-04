@@ -26,6 +26,11 @@ urlpatterns = patterns('',
     #Getting Schedule AJAX
     (r'^calendar/getSchedule/$', views.getSchedule),
 
+    #Submit Schedule AJAX
+    (r'^submitSchedule/$', views.submitSchedule),
+    (r'^submitSuccess/$', views.submitSuccess),
+
+                       
     (r'^calendar/(?P<instr>\w+)/$', views.view_calendar),
 
     #Logout
