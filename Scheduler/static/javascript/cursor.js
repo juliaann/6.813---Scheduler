@@ -42,6 +42,8 @@ function loadData(res, status){
 	isAdmin = response.isAdmin;
 	instructorSchedule = response.shifts;
 	validShifts = response.validShifts;
+	console.log("valid Shifts");
+	console.log(validShifts);
 	loadInitialShifts();
 
 }

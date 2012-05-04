@@ -28,7 +28,8 @@ def index(request):
                                     
                 login(request, user)
                 request.session['username'] = user.username
-                return render_to_response('index.html', {'instructor': request.session['username'],
+                instr = user.first_name + " " + user.last_name
+                return render_to_response('index.html', {'instructor': instr,
                                                          'isAdmin': isAdmin,
                                                          'allInstr': allInstr,
                                                          'is_logged_in': "True",
@@ -55,7 +56,7 @@ def index(request):
                                   context_instance=RequestContext(request))
 
     user = User.objects.get(username = request.session['username'])
-
+    instr = user.first_name + " " + user.last_name
     if user.groups.all()[0].name == "Admin":
         isAdmin = "True"
         allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
@@ -63,7 +64,7 @@ def index(request):
         isAdmin = "False"
         allInstr = [[user.username, user.first_name + " " + user.last_name]]
             
-    return render_to_response('index.html', {'instructor': request.session['username'],
+    return render_to_response('index.html', {'instructor': instr,
                                          'isAdmin': isAdmin,
                                          'allInstr': allInstr,
                                          'is_logged_in': "True",
@@ -81,7 +82,7 @@ def submitSuccess(request):
                                   context_instance=RequestContext(request))
 
     user = User.objects.get(username = request.session['username'])
-
+    instr = user.first_name + " " + user.last_name
     if user.groups.all()[0].name == "Admin":
         isAdmin = "True"
         allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
@@ -244,7 +245,8 @@ def view_calendar(request, instr=None):
             print "authError"
             user = User.objects.get(username = request.session['username'])
             allInstr = [[user.username, user.first_name + " " + user.last_name]]
-            return render_to_response('index.html', {'instructor': request.session['username'],
+            instr = user.first_name + " " + user.last_name
+            return render_to_response('index.html', {'instructor': instr,
                                          'isAdmin': isAdmin,
                                          'allInstr': allInstr,
                                          'is_logged_in': "True",
