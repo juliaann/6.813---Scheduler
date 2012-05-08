@@ -46,3 +46,8 @@ class ScheduledShifts(models.Model):
     )
 
     discipline = models.IntegerField(choices = DISCIPLINE)
+
+class Accepted(models.Model):
+    user = models.ForeignKey(User)
+
+
