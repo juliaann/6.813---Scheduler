@@ -118,7 +118,7 @@
 </table>
 
 <table class="pendingChanges" id="pendingChangesTable">
-{% if pending_changes != None %}
+{% if pending_changes != None and accepted == "True" %}
 	<tr>
 		<th></th>
 		{% if isAdmin == "True" %}

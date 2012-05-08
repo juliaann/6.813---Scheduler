@@ -227,6 +227,7 @@ def view_calendar(request, instr=None):
                                                  'is_logged_in': "False",
                                                  'error': 'You must login to view that page!'},
                                   context_instance=RequestContext(request))
+    
 
     instr_name = instr.first_name + " " + instr.last_name
     if logged_in.groups.all()[0].name == "Admin":
@@ -244,6 +245,12 @@ def view_calendar(request, instr=None):
                                          'is_logged_in': "True",
                                          'error': "authorizationDenied"},
                                       context_instance=RequestContext(request))
+    if isAdmin == "True":
+        accepted = "True"
+    elif len(Accepted.objects.filter(user = instr)) > 0:
+        accepted = "True"
+    else:
+        accepted = "False"
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
     my_shifts = []
     pending_changes = []
