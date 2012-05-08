@@ -80,7 +80,7 @@ def submitSuccess(request):
                                                  'is_logged_in': "False",
                                                  'error': 'You must login to view that page!'},
                                   context_instance=RequestContext(request))
-
+    
     user = User.objects.get(username = request.session['username'])
     instr = user.first_name + " " + user.last_name
     if user.groups.all()[0].name == "Admin":
@@ -130,6 +130,15 @@ def getSchedule(request):
         isAdmin = "True"
     else:
         isAdmin = "False"
+
+    print instr
+    if len(Accepted.objects.filter(user = instr)) > 0:
+        accepted = "True"
+    else:
+        if instr.groups.all()[0].name == "Admin":
+            accepted = "True"
+        else:
+            accepted = "False"
         
     shifts = list(ScheduledShifts.objects.filter(instructor = instr))
     my_shifts = []
@@ -153,7 +162,7 @@ def getSchedule(request):
         possible_shifts.append([shift_name, p.hasChildrensSki, p.hasChildrensBoard, p.hasAdultSki, p.hasAdultBoard, p.hasRace])
     
         
-    response_dict = {'isAdmin': isAdmin,'validShifts': possible_shifts, 'shifts': my_shifts,'pending_changes' : pending_changes}
+    response_dict = {'isAdmin': isAdmin,'validShifts': possible_shifts, 'shifts': my_shifts,'pending_changes' : pending_changes, 'accepted' : accepted}
     return HttpResponse(simplejson.dumps(response_dict))
     
 def submitSchedule(request):
@@ -162,6 +171,9 @@ def submitSchedule(request):
     instr = request.POST['name'].strip()
     instr = lookupUserName(instr)
     instr = User.objects.get(username = instr)
+    if request.POST['isApproval'] == "True":
+        approval = Accepted(user = instr)
+        approval.save()
     schedule = schedule.split(",")
     if schedule == ['']:
         ScheduledShifts.objects.filter(instructor = instr).delete()
@@ -245,7 +257,7 @@ def view_calendar(request, instr=None):
                                          'is_logged_in': "True",
                                          'error': "authorizationDenied"},
                                       context_instance=RequestContext(request))
-    if isAdmin == "True":
+    if instr.groups.all()[0].name == "Admin":
         accepted = "True"
     elif len(Accepted.objects.filter(user = instr)) > 0:
         accepted = "True"
@@ -318,6 +330,7 @@ def view_calendar(request, instr=None):
                                'shifts': my_shifts,
                               'pending_changes' : pending_changes,
                                'all_dates': all_dates,
+                               'accepted' : accepted,
                                'dec_offset_start': dec_offset_start,
                                'jan_offset_start': jan_offset_start,
                                'feb_offset_start': feb_offset_start,

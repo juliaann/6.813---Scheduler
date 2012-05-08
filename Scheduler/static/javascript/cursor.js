@@ -6,6 +6,7 @@ var isAdmin;
 var instructorSchedule;
 var validShifts;
 var cnt = 0;
+var accepted;
 
 
 // Arrays of the sidebar buttons for for loops -- note: these must remain
@@ -44,6 +45,8 @@ function loadData(res, status){
 	instructorSchedule = response.shifts;
 	console.log(instructorSchedule);
 	validShifts = response.validShifts;
+	accepted = response.accepted;
+	console.log(accepted);
 	loadInitialShifts();
 
 }
@@ -51,61 +54,67 @@ function loadData(res, status){
 //Add a pending message
 //Takes in a shift, which is an array in the format of [status, date, time, discipline]
 function addPendingMsg(shift){
-	table = document.getElementById("pendingChangesTable");
-	var row = table.insertRow(-1);
-	var cell0 = row.insertCell(0);
-	var date = formatDate(shift[1]);
-	cell0.innerHTML = shift[3] + ": " + shift[2].charAt(0).toUpperCase() + shift[2].slice(1) + " on " + date + " is " + shift[0]
-	if(isAdmin == "True"){
-		var cell1 = row.insertCell(1);
-		cell1.innerHTML = "<input type='radio' name=" + cnt + " value='Accept'>"
-		cell1.className = ("acceptColumn");
-		var cell2 = row.insertCell(2);
-		cell2.innerHTML = "<input type='radio' name=" + cnt + " value='Reject'>"
-		cell2.className = ("rejectColumn");
-		cnt++;
+	console.log("in add pending");
+	console.log(accepted);
+	if(accepted == "True"){
+		table = document.getElementById("pendingChangesTable");
+		var row = table.insertRow(-1);
+		var cell0 = row.insertCell(0);
+		var date = formatDate(shift[1]);
+		cell0.innerHTML = shift[3] + ": " + shift[2].charAt(0).toUpperCase() + shift[2].slice(1) + " on " + date + " is " + shift[0]
+		if(isAdmin == "True"){
+			var cell1 = row.insertCell(1);
+			cell1.innerHTML = "<input type='radio' name=" + cnt + " value='Accept'>"
+			cell1.className = ("acceptColumn");
+			var cell2 = row.insertCell(2);
+			cell2.innerHTML = "<input type='radio' name=" + cnt + " value='Reject'>"
+			cell2.className = ("rejectColumn");
+			cnt++;
+		}
 	}
+
 }
 
 //delete the pending message (because the instructor no longer wants to change the shift)
 function deletePendingMsg(date, time, discipline){
-	if(time == "morning"){
-		time = "day";
-	}
-	if(discipline == "Racing"){
-		discipline = "Race";
-	}
-	table = document.getElementById("pendingChangesTable");
-	for(var i = 0, row; row = table.rows[i]; i++){
-		console.log("row");
-		console.log(row);
-		if(i!=0){
-		    msg = row.cells[0].innerHTML;
+	console.log("in delete pending");
+	if(accepted == "True"){
+		if(time == "morning"){
+			time = "day";
+		}
+		if(discipline == "Racing"){
+			discipline = "Race";
+		}
+		table = document.getElementById("pendingChangesTable");
+		for(var i = 0, row; row = table.rows[i]; i++){
+			console.log("row");
+			console.log(row);
+			    msg = row.cells[0].innerHTML;
 
-		    // Get the text and parse out the discipline, time, date, and status
-		    var msgDiscipline = msg.substring(0, msg.indexOf(":"));
-		    msg = msg.substring(msg.indexOf(":")+2); // ignore ": "
+			    // Get the text and parse out the discipline, time, date, and status
+			    var msgDiscipline = msg.substring(0, msg.indexOf(":"));
+			    msg = msg.substring(msg.indexOf(":")+2); // ignore ": "
 
-		    var msgTime = msg.substring(0, msg.indexOf(" "));
-		    msg = msg.substring(msg.indexOf(" ")+4); // ignore " on "
+			    var msgTime = msg.substring(0, msg.indexOf(" "));
+			    msg = msg.substring(msg.indexOf(" ")+4); // ignore " on "
 
-		    var msgDate = msg.substring(0, msg.indexOf(" is"));
-		    var status = msg.substring(msg.indexOf(" is")+12);
-			
-		    console.log(msgDate);
-		    console.log(msgTime);
-		    console.log(msgDiscipline);
-		    console.log(formatDate(date));
-		    console.log(time);
-		    console.log(discipline);
-		    if(msgDate == formatDate(date) && msgTime.toLowerCase() == time && msgDiscipline == discipline){
-		    	table.deleteRow(i);
-		    	console.log("deletedRow");
-		    	return;
-		    }
+			    var msgDate = msg.substring(0, msg.indexOf(" is"));
+			    var status = msg.substring(msg.indexOf(" is")+12);
+				
+			    console.log(msgDate);
+			    console.log(msgTime);
+			    console.log(msgDiscipline);
+			    console.log(formatDate(date));
+			    console.log(time);
+			    console.log(discipline);
+			    if(msgDate == formatDate(date) && msgTime.toLowerCase() == time && msgDiscipline == discipline){
+			    	table.deleteRow(i);
+			    	console.log("deletedRow");
+			    	return;
+			    }
+	
 		}
 	}
-	
 }
 
 function formatDate(date){
@@ -183,12 +192,12 @@ $(document).ready(function() {
 	var subSch = confirm("Are you sure you want to submit your schedule?");
 	if (subSch == true){
 		console.log(instructorSchedule);
-		submitSchedule = [];
+		var submitSchedule = [];
 		for(var k = 0; k < instructorSchedule.length; k++){
 			submitSchedule = submitSchedule.concat(instructorSchedule[k]);
 		}
 		console.log(submitSchedule);
-		data = {name: instructor, instructorShifts: submitSchedule.toString()};
+		data = {name: instructor, instructorShifts: submitSchedule.toString(), isApproval: "False"};
 		console.log(data);
 		var args = { traditional: true, 
 				type:"POST", 
@@ -200,6 +209,39 @@ $(document).ready(function() {
 				}};
 		$.ajax(args);
 	}
+    });
+    
+    //Add a click listener to the accept button 
+    $("#acceptScheduleButton").click( function() {
+    	var approveSch = confirm("Are you sure you want to approve this schedule?");
+    	if(approveSch == true){
+        	for(var s=0; s <  instructorSchedule.length; s++){
+        		if(instructorSchedule[s][0] == "Pending Add" || instructorSchedule[s][0] == "Pending Delete"){
+        			var date = instructorSchedule[s][1];
+        			var time = instructorSchedule[s][2];
+        			var shiftID = date + time; 
+        			console.log(shiftID);
+        			changeStatus(shiftID, "Normal");
+        		}
+        	}
+    		var submitSchedule = [];
+    		for(var k = 0; k < instructorSchedule.length; k++){
+    			submitSchedule = submitSchedule.concat(instructorSchedule[k]);
+    		}
+    		console.log(submitSchedule);
+    		data = {name: instructor, instructorShifts: submitSchedule.toString(), isApproval: "True"};
+    		console.log(data);
+    		var args = { traditional: true, 
+    				type:"POST", 
+    				url:"/submitSchedule/", 
+    				dataType: "text", 
+    				data:data,
+    				complete: function(){
+    					top.location.href = "/submitSuccess";
+    				}};
+    		$.ajax(args);
+        	
+    	}
     });
     // Add the click listener to the buttons for everybody
     try {
@@ -394,41 +436,34 @@ function hasDiscipline(id) {
 }
 
 function deleteShift(id){
-	console.log("deleteShift");
+	console.log("in delete shift");
 	var date = id.slice(0,10);
 	var time = id.slice(10);
-	console.log(date);
-	console.log(time);
 	if(time == "morning"){
 		time = "day";
 	}
 	if(discipline == "Racing"){
 		discipline = "Race";
 	}
-	console.log(time);
-	console.log(discipline);
 	clearShiftImage(id);
+	console.log("middle of delete shift");
 	var tempSch = instructorSchedule.slice(0);
-	console.log(tempSch);
 	instructorSchedule = instructorSchedule.slice(0,0);
+	console.log("after instr sched");
 	for(var i=0; i<tempSch.length; i++){
+		console.log("in loop");
 		if (tempSch[i][1] != date || tempSch[i][2] != time){
 			console.log("don't want to delete");
 			console.log(tempSch[i]);
 			instructorSchedule.push(tempSch[i]);
 		}
 	}
-	console.log("final schedule");
-	console.log(instructorSchedule);
+	console.log("end of delete shift");
 }
 
 function addShift(id, status, discipline){
 	var date = id.slice(0,10);
 	var time = id.slice(10);
-	console.log("addShift");
-	console.log(date);
-	console.log(time);
-	console.log(discipline);
 	if(time == "morning"){
 		console.log("in morning");
 		time = "day";
@@ -446,6 +481,11 @@ function addShift(id, status, discipline){
 function changeStatus(id, newStatus){
 	var date = id.slice(0,10);
 	var time = id.slice(10);
+	if(time == "morning"){
+		time = "day";
+	}
+	console.log("in change status");
+	console.log(time);
 	for(var i=0; i<instructorSchedule.length; i++){
 		if (instructorSchedule[i][1] == date && instructorSchedule[i][2] == time){
 			instructorSchedule[i][0] = newStatus;
@@ -522,10 +562,12 @@ function shiftClicked(e) {
     			console.log("pending add exists");
     			console.log(this.id);
     			deleteShift(this.id);
+    			console.log("call pending delete");
     			deletePendingMsg(date, time, discipline);
     			console.log(instructorSchedule);
     		}else if(statusOfShift(date, time, discipline) != "Pending Delete"){
     			console.log("no pending delete exists");
+    			console.log(this.id)
     			changeStatus(this.id, "Pending Delete");
 	    		clearShiftImage(this.id);
 	    		setPendingImage(this.id, curImage, false);
@@ -585,7 +627,10 @@ function shiftClicked(e) {
         }else{
         	console.log("Add Status of shift");
         	console.log(statusOfShift);
+    		var date = this.id.slice(0,10).toString();
+    		var time = this.id.slice(10).toString();
         	if(statusOfShift(date, time, discipline) == "Pending Delete"){
+        		console.log("this has a pending delete");
             	deleteShift(this.id);
             	addShift(this.id, "Normal", discipline);
             	setShiftImage(this.id, cursorName + ".png");

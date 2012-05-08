@@ -116,7 +116,6 @@
 		<td>Night</td>
 	</tr>
 </table>
-
 <table class="pendingChanges" id="pendingChangesTable">
 {% if pending_changes != None and accepted == "True" %}
 	<tr>
@@ -127,7 +126,16 @@
 		{% endif %}
 	</tr>
 {% endif %}
+{% if accepted == "False" %}
+<tr>
+	<th>This Schedule has not yet been accepted </th>
+	{% if isAdmin == "True" %}
+		<th><button id="acceptScheduleButton">Accept</button>
+	{% endif %}
+</tr>
+{% endif %}
 </table>
+
 
 <div id=instructor>  {{ instructor }}'s Schedule </div>
 </div>
