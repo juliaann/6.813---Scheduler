@@ -159,11 +159,14 @@ def getSchedule(request):
 def submitSchedule(request):
     print request.POST
     schedule = request.POST['instructorShifts']
-    print schedule
     instr = request.POST['name'].strip()
     instr = lookupUserName(instr)
     instr = User.objects.get(username = instr)
     schedule = schedule.split(",")
+    if schedule == ['']:
+        ScheduledShifts.objects.filter(instructor = instr).delete()
+        return HttpResponse()
+    
     listSchedule = []
     while len(schedule) > 0:
         status = schedule[0]
@@ -201,24 +204,13 @@ def submitSchedule(request):
             discipline = 4
         listSchedule.append([status, date, time, discipline])
         schedule = schedule[4:]
-        
+
     ScheduledShifts.objects.filter(instructor = instr).delete()
-    print listSchedule
     for schShift in listSchedule:
         s = Shift.objects.get(date = schShift[1], time = schShift[2])
-        print schShift[3]
         myShift = ScheduledShifts(shift = s, instructor = instr, status = schShift[0], discipline = schShift[3])
-
-        #myShift = ScheduledShifts(status = schShift[0], discipline = schShift[3])
-        print myShift.status
-        print myShift.discipline
-        print myShift.shift
-        print myShift.instructor
         myShift.save()
-##    return render_to_response('index.html', {'instructor': request.session['username'],
-##                                             'is_logged_in': "True",
-##                                             'error': 'You have successfuly submitted your schedule!'},
-##                              context_instance=RequestContext(request))
+
     
         
     return HttpResponse()
