@@ -170,15 +170,19 @@ div.container{
 }
 
 .acceptColumn{
-	width: 100px;
+	width: 70px;
 	text-align: center;
 }
 
 .rejectColumn{
-	width: 100px;
+	width: 70px;
 	text-align: center;
 }
 
+.clearColumn{
+    width: 70px;
+    text-align: center;
+}
 
 ul{
 	list-style-type:none;

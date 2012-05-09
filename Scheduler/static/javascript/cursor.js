@@ -8,7 +8,6 @@ var validShifts;
 var cnt = 0;
 var accepted;
 
-
 // Arrays of the sidebar buttons for for loops -- note: these must remain
 // in this order -- for loops should be surrounded in a try/catch block
 // and so will catch errors and stop as soon as they hit the admin-only buttons
@@ -69,6 +68,12 @@ function addPendingMsg(shift){
 			var cell2 = row.insertCell(2);
 			cell2.innerHTML = "<input type='radio' name=" + cnt + " value='Reject'>"
 			cell2.className = ("rejectColumn");
+
+            // Also add a radio button to clear the accept/reject radio buttons
+            var cell3 = row.insertCell(3);
+            cell3.innerHTML = "<input type='radio' name=" + cnt + " value='Clear'>"
+            cell3.className = ("clearColumn");
+
 			cnt++;
 		}
 	}
@@ -110,6 +115,11 @@ function deletePendingMsg(date, time, discipline){
 			    if(msgDate == formatDate(date) && msgTime.toLowerCase() == time && msgDiscipline == discipline){
 			    	table.deleteRow(i);
 			    	console.log("deletedRow");
+
+                    // Clear the border for the pending image
+                    var id = date + (time == "day" ? "morning" : time);
+                    clearPendingBorder(id);
+
 			    	return;
 			    }
 	
@@ -166,8 +176,10 @@ function loadInitialShifts(){
             if (pendingCells.length > 0) {
                 var acceptButton = pendingCells[1].firstChild;
                 var rejectButton = pendingCells[2].firstChild;
+                var clearButton  = pendingCells[3].firstChild;
                 acceptButton.addEventListener('click', radioButtonClicked, false);
                 rejectButton.addEventListener('click', radioButtonClicked, false);
+                clearButton.addEventListener('click', radioButtonClicked, false);
             }
         }
     }
@@ -305,18 +317,25 @@ function radioButtonClicked(e) {
     // If it's a pending Add, get the image and set the shift to that image
     if (status == "Add") {
         if (this.value == "Accept") {
-            // Get the image
-            var image = getNameImage(discipline);
+            // Using functionality similar to shiftClicked -- delete
+            // the old shift, add the new one, and update its image
+        	deleteShift(id);
+        	addShift(id, "Normal", discipline);
+        	setShiftImage(id, imagePath + getNameImage(discipline));
+            clearPendingBorder(id);
 
-            // Store the original shift value, if one exists
-            pendingChanges[id] = document.getElementById(id).innerHTML;
-    
-            // Set the image for that shift
-            setShiftImage(id, imagePath + image);
+        } else if (this.value == "Reject") {
+            pendingChanges[id] = document.getElementById(id).innerHTML; // probably not necessary...
 
-        } else {
-            // Reset to the original image
-            restoreShiftImage(id);
+            // Again, similar to shiftClicked -- the Add was rejected, so
+            // clear the shift
+            deleteShift(id);
+            clearPendingBorder(id);
+        } else if (this.value == "Clear") {
+            // Revert back to the original view of the shift, as if neither
+            // the accept nor reject radio button had ever been clicked
+            // (for an Add, the discipline is encoded in the message)
+            setPendingImage(id, imagePath + getNameImage(discipline), true);
         }
     }
 
@@ -328,9 +347,18 @@ function radioButtonClicked(e) {
 
             // Clear the shift image
             clearShiftImage(id);
-        } else {
+            deleteShift(id);
+            clearPendingBorder(id);
+        } else if (this.value == "Reject") {
             // Reset to the original image
-            restoreShiftImage(id);
+        	addShift(id, "Normal", discipline);
+        	setShiftImage(id, imagePath + getNameImage(discipline));
+            clearPendingBorder(id);
+        } else if (this.value == "Clear") {
+            // Revert back to the original view of the shift, as if neither
+            // the accept nor reject radio button had ever been clicked
+            // (for a Delete, this is just an empty pending)
+            setPendingImage(id, imagePath + getNameImage(discipline), false);
         }
     }
 }
@@ -383,14 +411,35 @@ function setShiftImage(id, image) {
     setAppropriateClassName(id);
 }
 
-//TANYA TODO: Make it so that the image has a boarder around it since these images are pending
+//TANYA TODO: Make it so that the image has a border around it since these images are pending
 //Add is a boolean, If it is a pending add, it is  true, otherwise it is false
 //Given an element id and an image, sets the image src in the innerHTML
 function setPendingImage(id, image, add){
-    // Set the image
     var b = document.getElementById(id);
-    b.innerHTML = '<img class="calendarImage" src="' + image + '">';
-    setAppropriateClassName(id);
+    
+    if (add) {
+        // Set the image
+        b.innerHTML = '<img class="calendarImage" src="' + image + '">';
+        setAppropriateClassName(id);
+    } else {
+        // Clear the image
+        clearShiftImage(id);
+    }
+
+    // Add a border to the button
+    b.style.borderWidth = "thick";
+    b.style.borderStyle = "solid";
+    b.style.borderColor = "#000000"; // for now, black
+}
+
+// Clears the border for pending changes when the pending change is removed
+// from the list
+function clearPendingBorder(id) {
+    // Clear the border style
+    var b = document.getElementById(id);
+    b.style.borderWidth = null;
+    b.style.borderStyle = null;
+    b.style.borderColor = null;
 }
 
 // Given an element id, clear that shift in the innerHTML
@@ -442,9 +491,12 @@ function deleteShift(id){
 	if(time == "morning"){
 		time = "day";
 	}
-	if(discipline == "Racing"){
+
+    // [TMK] I was getting a ReferenceError with discipline, but it doesn't
+    // actually seem to be used, so I'm commenting it out.
+/*	if(discipline == "Racing"){
 		discipline = "Race";
-	}
+	} */
 	clearShiftImage(id);
 	console.log("middle of delete shift");
 	var tempSch = instructorSchedule.slice(0);
@@ -457,6 +509,9 @@ function deleteShift(id){
 			console.log(tempSch[i]);
 			instructorSchedule.push(tempSch[i]);
 		}
+
+        else { console.log("ignoring: " + tempSch[i]); }
+
 	}
 	console.log("end of delete shift");
 }
@@ -542,11 +597,42 @@ function statusOfShift(date, time, discipline){
 	return "None";
 }
 
+function disciplineOfPendingAdd(date, time) {
+    console.log("In disciplineOfPendingAdd");
+    var instrDate = date;
+	var instrTime = time;
+	if (instrTime == "morning") {
+	instrTime = "day";
+	}
+	var instrDiscipline = discipline;
+	if (instrDiscipline == "Racing") {
+		instrDiscipline = "Race";
+	}
+    for (var i = 0; i < instructorSchedule.length; i++) {
+//		console.log(instructorSchedule[i])
+		if (instructorSchedule[i][1] == instrDate && instructorSchedule[i][2] == instrTime && instructorSchedule[i][0] == "Pending Add"){
+			console.log("match in disciplineOfPendingAdd");
+			return instructorSchedule[i][3]; // the discipline
+		}
+	}
+	return "None";
+}
+
+function disciplineOfPendingAdd_byId(id) {
+	var date = id.slice(0,10).toString();
+	var time = id.slice(10).toString();
+    return disciplineOfPendingAdd(date, time);
+}
 
 // Uses the current cursor to change the image for the shift
 function shiftClicked(e) {
     // If the cursor is the eraser, remove the shift
     if (cursorImage.indexOf("eraser.") != -1) {
+
+        // [TMK] Hack (temporarily) to avoid modifying unassigned shifts with 
+        // the eraser
+        if (!hasDiscipline(this.id)) { return; }
+
     	if (isAdmin == "True"){
     		deleteShift(this.id);	
     	}else{
@@ -637,6 +723,29 @@ function shiftClicked(e) {
         		var date = this.id.slice(0,10);
         		var time = this.id.slice(10);
             	deletePendingMsg(date, time, discipline);
+
+            // If there was a pending add for a different discipline...
+            } else if (disciplineOfPendingAdd(date, time) != "None") {
+
+                // Remove that pending add
+                oldDiscipline = disciplineOfPendingAdd(date, time);
+                deleteShift(this.id);
+                var date = this.id.slice(0,10);
+        		var time = this.id.slice(10);
+            	deletePendingMsg(date, time, oldDiscipline);
+
+                // ... and replace it with a new one
+                addShift(this.id, "Pending Add", discipline);
+            	setPendingImage(this.id, cursorName + ".png", true);
+        		curImage = document.getElementById(this.id).innerHTML;
+        		curImage = curImage.substring(32, curImage.indexOf(">"));
+        		var date = this.id.slice(0,10);
+        		var time = this.id.slice(10);
+        		var discipline = getDisciplineFromImage(curImage.substring(15, curImage.indexOf(".png")));
+	    		if (time == "morning") { time = "day"; }
+	    		if (discipline == "Racing") { discipline = "Race"; 	}
+        		addPendingMsg(["Pending Add", date, time, discipline])
+
         	}else if(statusOfShift(date, time, discipline) != "Pending Add"){
             	addShift(this.id, "Pending Add", discipline);
             	setPendingImage(this.id, cursorName + ".png", true);
@@ -652,10 +761,8 @@ function shiftClicked(e) {
 	    			discipline = "Race";
 	    		}
         		addPendingMsg(["Pending Add", date, time, discipline])
-        	}
-
-        }
-        
+            }
+        }   
     }
 }
 
