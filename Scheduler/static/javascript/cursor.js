@@ -346,8 +346,9 @@ function radioButtonClicked(e) {
             pendingChanges[id] = document.getElementById(id).innerHTML;
 
             // Clear the shift image
-            clearShiftImage(id);
-            deleteShift(id);
+            setShiftImage(id, imagePath + getNameImage(discipline));
+            setShiftOverlayImage(id, "/static/images/excused.png")
+            changeStatus(id, "Excused");
             clearPendingBorder(id);
         } else if (this.value == "Reject") {
             // Reset to the original image
