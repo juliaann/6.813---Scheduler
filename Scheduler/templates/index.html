@@ -32,14 +32,50 @@
 	{% endif %}
 	{% if isAdmin == "True" %}
 		<div class="calToView">
-		<p id="message2"> Click on the instructor's name to view his/her schedule </p>
+		<div id="message2"><b>Click on the instructor's name to view his/her schedule </b></div>
 		<br>
-		<br><p>
-		{% for username, name in allInstr %}
-		<a href="/calendar/{{ username }}">{{ name }}</a>
-		<br>
-		{% endfor %}
-		</p>
+		<table id = listInstructor cellpadding = "10">
+		<tr valign="top">
+			<td><b>Admins</b>
+			<br>
+			{% for username, name, status in allInstr %}
+				{% if status == "admin" %}
+					<a href="/calendar/{{ username }}">{{ name }}</a>
+					<br>
+				{% endif %}
+			{% endfor %}
+			</td>
+			<td>
+			<b>Unapproved Schedule</b>
+			<br>
+			{% for username, name, status in allInstr %}
+				{% if status == "unapproved" %}
+					<a href="/calendar/{{ username }}">{{ name }}</a>
+					<br>
+				{% endif %}
+			{% endfor %}
+			</td>
+			<td><b>Pending Changes</b>
+			<br>
+			{% for username, name, status in allInstr %}
+				{% if status == "pending" %}
+					<a href="/calendar/{{ username }}">{{ name }}</a>
+					<br>
+				{% endif %}
+			{% endfor %}
+			</td>
+			<td>
+			<b>No Pending Actions</b>
+			<br>
+			{% for username, name, status in allInstr %}
+				{% if status == "normal" %}
+					<a href="/calendar/{{ username }}">{{ name }}</a>
+					<br>
+				{% endif %}
+			{% endfor %}
+			</td>
+		</tr>
+		</table>
 	{% endif %}
 	</div>
 {% endif %}

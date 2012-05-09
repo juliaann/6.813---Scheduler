@@ -21,10 +21,10 @@ def index(request):
             if user.is_active:
                 if user.groups.all()[0].name == "Admin":
                     isAdmin = "True"
-                    allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
+                    allInstr = [[i.username, i.first_name + " " + i.last_name, getSchedStatus(i)]  for i in list(User.objects.all())]
                 else:
                     isAdmin = "False"
-                    allInstr = [[user.username, user.first_name + " " + user.last_name]]
+                    allInstr = [[user.username, user.first_name + " " + user.last_name, getSchedStatus(user)]]
                                     
                 login(request, user)
                 request.session['username'] = user.username
@@ -59,10 +59,10 @@ def index(request):
     instr = user.first_name + " " + user.last_name
     if user.groups.all()[0].name == "Admin":
         isAdmin = "True"
-        allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
+        allInstr = [[i.username, i.first_name + " " + i.last_name, getSchedStatus(i)]  for i in list(User.objects.all())]
     else:
         isAdmin = "False"
-        allInstr = [[user.username, user.first_name + " " + user.last_name]]
+        allInstr = [[user.username, user.first_name + " " + user.last_name, getSchedStatus(user)]]
             
     return render_to_response('index.html', {'instructor': instr,
                                          'isAdmin': isAdmin,
@@ -70,6 +70,17 @@ def index(request):
                                          'is_logged_in': "True",
                                          'error': None},
                           context_instance=RequestContext(request))
+
+def getSchedStatus(instructor):
+    if instructor.groups.all()[0].name == "Admin":
+        return "admin"
+    elif len(Accepted.objects.filter(user = instructor)) == 0:
+        return "unapproved"
+    elif len(ScheduledShifts.objects.filter(instructor = instructor, status = 1)) > 0 or len(ScheduledShifts.objects.filter(instructor = instructor, status = 2)) > 0:
+        return "pending"
+    else:
+        return "normal"
+    
 def submitSuccess(request):
     try:
         request.session['username']
@@ -85,10 +96,10 @@ def submitSuccess(request):
     instr = user.first_name + " " + user.last_name
     if user.groups.all()[0].name == "Admin":
         isAdmin = "True"
-        allInstr = [[i.username, i.first_name + " " + i.last_name]  for i in list(User.objects.all())]
+        allInstr = [[i.username, i.first_name + " " + i.last_name, getSchedStatus(i)]  for i in list(User.objects.all())]
     else:
         isAdmin = "False"
-        allInstr = [[user.username, user.first_name + " " + user.last_name]]
+        allInstr = [[user.username, user.first_name + " " + user.last_name], getSchedStatus(user)]
             
     return render_to_response('index.html', {'instructor': request.session['username'],
                                          'isAdmin': isAdmin,
@@ -249,7 +260,7 @@ def view_calendar(request, instr=None):
         if request.session['username'] != instr.username:
             print "authError"
             user = User.objects.get(username = request.session['username'])
-            allInstr = [[user.username, user.first_name + " " + user.last_name]]
+            allInstr = [[user.username, user.first_name + " " + user.last_name, getSchedStatus(user)]]
             instr = user.first_name + " " + user.last_name
             return render_to_response('index.html', {'instructor': instr,
                                          'isAdmin': isAdmin,
