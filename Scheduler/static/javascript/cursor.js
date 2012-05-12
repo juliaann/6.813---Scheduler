@@ -4,9 +4,19 @@ var imagePath = "/static/images/";
 var isAdmin;
 //[status, date, time, discipline]
 var instructorSchedule;
-var validShifts;
+var validShifts; // [id, adultSki, adultBoard, childSki, childBoard, race] (string, bool x 5)
 var cnt = 0;
 var accepted;
+
+// Useful mappings of disciplines to integers for validShifts
+adultSki = 1;
+adultBoard = 2;
+childSki = 3;
+childBoard = 4;
+race = 5;
+
+// Boolean used to determine if any changes have been made
+var changesMade = false;
 
 // Arrays of the sidebar buttons for for loops -- note: these must remain
 // in this order -- for loops should be surrounded in a try/catch block
@@ -44,6 +54,12 @@ function loadData(res, status){
 	instructorSchedule = response.shifts;
 	console.log(instructorSchedule);
 	validShifts = response.validShifts;
+
+
+    console.log("validShifts: ");
+    console.log(validShifts);
+    console.log("Done!");
+
 	accepted = response.accepted;
 	console.log(accepted);
 	loadInitialShifts();
@@ -118,7 +134,7 @@ function deletePendingMsg(date, time, discipline){
 
                     // Clear the border for the pending image
                     var id = date + (time == "day" ? "morning" : time);
-                    clearPendingBorder(id);
+                    clearBorder(id);
 
 			    	return;
 			    }
@@ -169,21 +185,22 @@ function loadInitialShifts(){
         	}
         }
         // Add click listeners to the radio buttons (pending changes for admin)
-        var pendingTable = document.getElementById("pendingChangesTable");
-        var pendingRows = pendingTable.rows;
-        for (var i = 0; i < pendingRows.length; i++) {
-            var pendingCells = pendingRows[i].cells;
-            if (pendingCells.length > 0) {
-                var acceptButton = pendingCells[1].firstChild;
-                var rejectButton = pendingCells[2].firstChild;
-                var clearButton  = pendingCells[3].firstChild;
-                acceptButton.addEventListener('click', radioButtonClicked, false);
-                rejectButton.addEventListener('click', radioButtonClicked, false);
-                clearButton.addEventListener('click', radioButtonClicked, false);
+        if (isAdmin == "True") {        
+            var pendingTable = document.getElementById("pendingChangesTable");
+            var pendingRows = pendingTable.rows;
+            for (var i = 0; i < pendingRows.length; i++) {
+                var pendingCells = pendingRows[i].cells;
+                if (pendingCells.length > 0) {
+                    var acceptButton = pendingCells[1].firstChild;
+                    var rejectButton = pendingCells[2].firstChild;
+                    var clearButton  = pendingCells[3].firstChild;
+                    acceptButton.addEventListener('click', radioButtonClicked, false);
+                    rejectButton.addEventListener('click', radioButtonClicked, false);
+                    clearButton.addEventListener('click', radioButtonClicked, false);
+                }
             }
         }
     }
-
 }
 
 function submitSuccess(){
@@ -283,9 +300,14 @@ $(document).ready(function() {
         }
     }
 
+    // Add a border around the arrow button on the sidbar
+    addBorder("arrow");
 });
 
 function radioButtonClicked(e) {
+    // A change has been made!
+    changesMade = true;
+
     // Find the message corresponding to this radio button
     var msg = "INVALID";
     var pendingTable = document.getElementById("pendingChangesTable");
@@ -322,7 +344,7 @@ function radioButtonClicked(e) {
         	deleteShift(id);
         	addShift(id, "Normal", discipline);
         	setShiftImage(id, imagePath + getNameImage(discipline));
-            clearPendingBorder(id);
+            clearBorder(id);
 
         } else if (this.value == "Reject") {
             pendingChanges[id] = document.getElementById(id).innerHTML; // probably not necessary...
@@ -330,7 +352,7 @@ function radioButtonClicked(e) {
             // Again, similar to shiftClicked -- the Add was rejected, so
             // clear the shift
             deleteShift(id);
-            clearPendingBorder(id);
+            clearBorder(id);
         } else if (this.value == "Clear") {
             // Revert back to the original view of the shift, as if neither
             // the accept nor reject radio button had ever been clicked
@@ -349,12 +371,12 @@ function radioButtonClicked(e) {
             setShiftImage(id, imagePath + getNameImage(discipline));
             setShiftOverlayImage(id, "/static/images/excused.png")
             changeStatus(id, "Excused");
-            clearPendingBorder(id);
+            clearBorder(id);
         } else if (this.value == "Reject") {
             // Reset to the original image
         	addShift(id, "Normal", discipline);
         	setShiftImage(id, imagePath + getNameImage(discipline));
-            clearPendingBorder(id);
+            clearBorder(id);
         } else if (this.value == "Clear") {
             // Revert back to the original view of the shift, as if neither
             // the accept nor reject radio button had ever been clicked
@@ -428,15 +450,19 @@ function setPendingImage(id, image, add){
     }
 
     // Add a border to the button
-    b.style.borderWidth = "thick";
-    b.style.borderStyle = "solid";
-    b.style.borderColor = "#000000"; // for now, black
+    addBorder(id);
 }
 
-// Clears the border for pending changes when the pending change is removed
-// from the list
-function clearPendingBorder(id) {
-    // Clear the border style
+// Adds a thick black border to the button specified by id
+function addBorder(id) {
+    var b = document.getElementById(id);
+    b.style.borderWidth = "thick";
+    b.style.borderStyle = "solid";
+    b.style.borderColor = "#000000";
+}
+
+// Clears the border around a button
+function clearBorder(id) {
     var b = document.getElementById(id);
     b.style.borderWidth = null;
     b.style.borderStyle = null;
@@ -627,6 +653,9 @@ function disciplineOfPendingAdd_byId(id) {
 
 // Uses the current cursor to change the image for the shift
 function shiftClicked(e) {
+    // A change has been made!
+    changesMade = true;
+
     // If the cursor is the eraser, remove the shift
     if (cursorImage.indexOf("eraser.") != -1) {
 
@@ -770,6 +799,7 @@ function shiftClicked(e) {
 // It's not pretty, but it works.  I will keep trying to make it more 
 // streamlined as I learn more.
 function sidebarButtonClicked(e) {
+
     // Get the image for the button that was pressed to use as the cursor
     otherStyle = imagePath + this.id + ".cur"; // id == the image name
 
@@ -783,6 +813,16 @@ function sidebarButtonClicked(e) {
         cursorStyle = "auto";
         cursorImage = ""; 
     }
+
+    // Clear each button's border
+    try {
+        for (var i = 0; i < sidebarIds.length; i++) {
+            clearBorder(sidebarIds[i]);
+        }
+    } catch(err) { } // catch error if not admin
+
+    // Add a border to the recently-clicked button
+    addBorder(this.id);
 
     // Update the body cursor style
     document.body.style.cursor = cursorStyle;
@@ -815,4 +855,37 @@ function sidebarButtonClicked(e) {
             }
         }
     }
+
+    // Some extra playing with the calendar buttons -- if the sidebar button
+    // was one of the five disciplines, disable any button that can't have
+    // that discipline for that shift -- for this, we need to know which
+    // sidebar button was pressed
+    var discIdx = 0;
+    if (this.id == "adultSki") { discIdx = adultSki; }
+    else if (this.id == "adultSnowboard") { discIdx = adultBoard; }
+    else if (this.id == "childrenSki") { discIdx = childSki; }
+    else if (this.id == "childrenSnowboard") { discIdx = childBoard; }
+    else if (this.id == "racing") { discIdx = race; }
+/*
+    for (var validShiftIdx = 0; validShiftIdx < validShifts.length; validShiftIdx++) {
+        var shift = validShifts[validShiftIdx];
+        var id = shift[0];
+        if (id.slice(10, id.length) == "day") {
+            id = id.slice(0, 10) + "morning";
+        }
+
+        console.log(id);
+
+        var valid = shift[discIdx];
+        var button = document.getElementById(id);
+
+        // Disable it if necessary
+        if (discIdx != 0) {
+            // Reverse because we're disabling it if false
+            button.disabled = !(shift[discIdx]);
+            if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
+        } else {
+            button.disabled = false;
+        }
+    }*/
 }
