@@ -8,12 +8,15 @@ var validShifts; // [id, adultSki, adultBoard, childSki, childBoard, race] (stri
 var cnt = 0;
 var accepted;
 
-// Useful mappings of disciplines to integers for validShifts
-adultSkiIdx = 1;
-adultBoardIdx = 2;
-childSkiIdx = 3;
-childBoardIdx = 4;
+// Useful mappings of disciplines to integers for validShifts -- see views.py
+// for the order: possible_shifts.append([shift_name, p.hasChildrensSki,
+// p.hasChildrensBoard, p.hasAdultSki, p.hasAdultBoard, p.hasRace])
+adultSkiIdx = 3;
+adultBoardIdx = 4;
+childSkiIdx = 1;
+childBoardIdx = 2;
 racingIdx = 5;
+eraserIdx = 6; // not part of the list, but useful for disabling buttons
 
 // Used for sidebar button ids and image names
 adultSki = "adultSki";
@@ -62,6 +65,9 @@ function loadData(res, status){
 	instructorSchedule = response.shifts;
 	console.log(instructorSchedule);
 	validShifts = response.validShifts;
+
+    console.log(validShifts);
+
 	accepted = response.accepted;
 	console.log(accepted);
 	loadInitialShifts();
@@ -189,6 +195,7 @@ function loadInitialShifts(){
             origShifts[id] = [instructorSchedule[s][0], instructorSchedule[s][3]] // id -> [status, discipline]
         }
 
+        console.log("Loaded original shifts:");
         console.log(origShifts);
 
         // Add click listeners to the radio buttons (pending changes for admin)
@@ -857,7 +864,7 @@ function sidebarButtonClicked(e) {
         cursorImage = ""; 
     }
 
-    // Clear each button's border
+    // Clear each sidebar button's border
     try {
         for (var i = 0; i < sidebarIds.length; i++) {
             clearBorder(sidebarIds[i]);
@@ -909,26 +916,29 @@ function sidebarButtonClicked(e) {
     else if (this.id == childSki) { discIdx = childSkiIdx; }
     else if (this.id == childBoard) { discIdx = childBoardIdx; }
     else if (this.id == racing) { discIdx = racingIdx; }
+    else if (this.id == "eraser") { discIdx = eraserIdx; }
 
- /*   for (var validShiftIdx = 0; validShiftIdx < validShifts.length; validShiftIdx++) {
+    for (var validShiftIdx = 0; validShiftIdx < validShifts.length; validShiftIdx++) {
         var shift = validShifts[validShiftIdx];
         var id = shift[0];
         if (id.slice(10, id.length) == "day") {
             id = id.slice(0, 10) + "morning";
         }
 
-        console.log(id);
-
         var valid = shift[discIdx];
         var button = document.getElementById(id);
 
         // Disable it if necessary
-        if (discIdx != 0) {
+        if (discIdx > 0 && discIdx < 6) {
             // Reverse because we're disabling it if false
             button.disabled = shift[discIdx] == false;
             if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
+
+        // If it's the eraser, disable all shifts not scheduled
+        } else if (discIdx == 6) {
+            button.disabled = !(hasDiscipline(id));
         } else {
             button.disabled = false;
         }
-    } */
+    } 
 }
