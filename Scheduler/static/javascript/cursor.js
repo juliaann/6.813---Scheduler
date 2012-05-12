@@ -9,11 +9,18 @@ var cnt = 0;
 var accepted;
 
 // Useful mappings of disciplines to integers for validShifts
-adultSki = 1;
-adultBoard = 2;
-childSki = 3;
-childBoard = 4;
-race = 5;
+adultSkiIdx = 1;
+adultBoardIdx = 2;
+childSkiIdx = 3;
+childBoardIdx = 4;
+racingIdx = 5;
+
+// Used for sidebar button ids and image names
+adultSki = "adultSki";
+adultBoard = "adultSnowboard";
+childSki = "childrenSki";
+childBoard = "childrenSnowboard";
+racing = "racing";
 
 // Boolean used to determine if any changes have been made
 var changesMade = false;
@@ -22,12 +29,13 @@ var changesMade = false;
 // in this order -- for loops should be surrounded in a try/catch block
 // and so will catch errors and stop as soon as they hit the admin-only buttons
 // so those should all be last
-var sidebarIds = ["adultSki", "adultSnowboard", "childrenSki",
-                  "childrenSnowboard", "racing", "eraser", "arrow",
-                  "excused", "absent", "excuseCancel", "absentCancel"];
+var sidebarIds = [adultSki, adultBoard, childSki, childBoard, racing,
+                  "eraser", "arrow", "excused", "absent", 
+                  "excuseCancel", "absentCancel"];
 
 // Keep track of the original state of each pending change
 var pendingChanges = new Object();
+var origShifts = new Object();
 
 // Adds a click listener to the element (in the sidebar panel) specified by id
 function addSidebarClickListener(id) {
@@ -54,16 +62,9 @@ function loadData(res, status){
 	instructorSchedule = response.shifts;
 	console.log(instructorSchedule);
 	validShifts = response.validShifts;
-
-
-    console.log("validShifts: ");
-    console.log(validShifts);
-    console.log("Done!");
-
 	accepted = response.accepted;
 	console.log(accepted);
 	loadInitialShifts();
-
 }
 
 //Add a pending message
@@ -183,7 +184,13 @@ function loadInitialShifts(){
         			setShiftOverlayImage(id, imagePath + "excused.png");
         		}
         	}
+
+            // Add to the original shifts 
+            origShifts[id] = [instructorSchedule[s][0], instructorSchedule[s][3]] // id -> [status, discipline]
         }
+
+        console.log(origShifts);
+
         // Add click listeners to the radio buttons (pending changes for admin)
         if (isAdmin == "True") {        
             var pendingTable = document.getElementById("pendingChangesTable");
@@ -449,8 +456,13 @@ function setPendingImage(id, image, add){
         clearShiftImage(id);
     }
 
-    // Add a border to the button
-    addBorder(id);
+    // Add a border to the button (if the change is different from the original
+    // discipline)
+    try {
+        if (getNameImage(origShifts[id][1]) != image) {
+            addBorder(id);
+        }
+    } catch (err) { }
 }
 
 // Adds a thick black border to the button specified by id
@@ -509,6 +521,22 @@ function hasDiscipline(id) {
     return (b.innerHTML.indexOf("day") == -1) &&
            (b.innerHTML.indexOf("evening") == -1) &&
            (b.innerHTML.indexOf("night") == -1)
+}
+
+// Get the discipline that's currently stored for a given shift
+function getDisciplineById(id) {
+    var b = document.getElementById(id);
+    if (b.innerHTML.indexOf(adultSki) != -1) { 
+        return adultSki; 
+    } else if (b.innerHTML.indexOf(adultBoard) != -1) {
+        return adultBoard;
+    } else if (b.innerHTML.indexOf(childSki) != -1) {
+        return childSki;
+    } else if (b.innerHTML.indexOf(childBoard) != -1) {
+        return childBoard;
+    } else if (b.innerHTML.indexOf(racing) != -1) {
+        return racing;
+    } else { return "none"; }
 }
 
 function deleteShift(id){
@@ -736,6 +764,12 @@ function shiftClicked(e) {
         var cursorName = cursorImage.substring(0, cursorImage.indexOf("."));
         discipline = getDisciplineFromImage(cursorName.slice(15));
 
+        // Check if this is the same discipline that was already there
+        if (cursorName.slice(imagePath.length) == getDisciplineById(this.id)){ 
+            console.log("Same discipline -- ignore click");       
+            return; 
+        }
+
         if(isAdmin == "True"){
         	deleteShift(this.id);
         	addShift(this.id, "Normal", discipline);
@@ -754,7 +788,8 @@ function shiftClicked(e) {
         		var time = this.id.slice(10);
             	deletePendingMsg(date, time, discipline);
 
-            // If there was a pending add for a different discipline...
+            // If there was a pending add for a different discipline but the
+            // same shift
             } else if (disciplineOfPendingAdd(date, time) != "None") {
 
                 // Remove that pending add
@@ -806,6 +841,14 @@ function sidebarButtonClicked(e) {
     // Specify the "hot spot" for the cursor (i.e. the center) as the point
     // (32,32) in the image (might not work in IE)
     var cursorStyle = "url(" + otherStyle + ") 15 15, auto";
+
+    // If it's the same button as the current cursor image, don't do anything
+    if (cursorImage == otherStyle) {
+        console.log("Same sidebar button clicked -- ignore it.");
+        return; 
+    }
+
+    // Store the new cursor image in the global variable
     cursorImage = otherStyle;
 
     // If the arrow button was clicked, just clear the cursor instead
@@ -861,13 +904,13 @@ function sidebarButtonClicked(e) {
     // that discipline for that shift -- for this, we need to know which
     // sidebar button was pressed
     var discIdx = 0;
-    if (this.id == "adultSki") { discIdx = adultSki; }
-    else if (this.id == "adultSnowboard") { discIdx = adultBoard; }
-    else if (this.id == "childrenSki") { discIdx = childSki; }
-    else if (this.id == "childrenSnowboard") { discIdx = childBoard; }
-    else if (this.id == "racing") { discIdx = race; }
-/*
-    for (var validShiftIdx = 0; validShiftIdx < validShifts.length; validShiftIdx++) {
+    if (this.id == adultSki) { discIdx = adultSkiIdx; }
+    else if (this.id == adultBoard) { discIdx = adultBoardIdx; }
+    else if (this.id == childSki) { discIdx = childSkiIdx; }
+    else if (this.id == childBoard) { discIdx = childBoardIdx; }
+    else if (this.id == racing) { discIdx = racingIdx; }
+
+ /*   for (var validShiftIdx = 0; validShiftIdx < validShifts.length; validShiftIdx++) {
         var shift = validShifts[validShiftIdx];
         var id = shift[0];
         if (id.slice(10, id.length) == "day") {
@@ -882,10 +925,10 @@ function sidebarButtonClicked(e) {
         // Disable it if necessary
         if (discIdx != 0) {
             // Reverse because we're disabling it if false
-            button.disabled = !(shift[discIdx]);
+            button.disabled = shift[discIdx] == false;
             if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
         } else {
             button.disabled = false;
         }
-    }*/
+    } */
 }
