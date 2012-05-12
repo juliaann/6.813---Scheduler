@@ -69,7 +69,7 @@ div.container{
 	background-color: rgb(190,217, 239);
 	border-right-style: solid;
 	border-right-color: black;
-	border-right-width: 1px;
+	border-right-width: 3px;
 }
 
 #pendingHeader{
@@ -83,7 +83,7 @@ div.container{
 	background-color: rgb(190,217, 239);
 	border-bottom-style: solid;
 	border-bottom-color: black;
-	border-bottom-width: 1px;
+	border-bottom-width: 3px;
 }
 
 #calendarPanel{
