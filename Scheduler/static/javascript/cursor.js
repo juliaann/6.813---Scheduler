@@ -227,7 +227,7 @@ function loadInitialShifts(){
         console.log(origShifts);
 
         // Add click listeners to the radio buttons (pending changes for admin)
-        if (isAdmin == "True") {        
+        if (isAdmin == "True" && accepted == "True") {        
             var pendingTable = document.getElementById("pendingChangesTable");
             var pendingRows = pendingTable.rows;
             for (var i = 0; i < pendingRows.length; i++) {
