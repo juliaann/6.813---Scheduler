@@ -968,7 +968,7 @@ function sidebarButtonClicked(e) {
         // Disable it if necessary
         if (discIdx > 0 && discIdx < 6) {
             // Reverse because we're disabling it if false
-            button.disabled = shift[discIdx] == false;
+            button.disabled = (valid == false) || getDisciplineById(id) == this.id;
             if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
 
         // If it's the eraser, disable all shifts not scheduled

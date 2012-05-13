@@ -9,6 +9,22 @@
 <!-- Sidebar is a div -- buttons, etc. in it should be the children -->
 <div id="sidebarPanel">
 	<table id="disciplineTable">
+
+		{% if isAdmin == "True" %}
+        <tr>
+            <td colspan=2 id="submitCell">
+                <button id="submit" class="submitButton"> Submit </button>
+            </td>
+        </tr>
+
+        {% else %}
+        <tr>
+            <td colspan=2 id="submitCell">
+                <button id="submit" class="submitButton">Submit Request</button>
+            </td>
+        </tr>
+        {% endif %}
+
         <tr>
             <th colspan=2>Select Discipline</th>
         </tr>
@@ -75,20 +91,6 @@
                 <span class="sidebarText">Clear Absent</span>
             </td>
         </tr>		
-
-        <tr>
-            <td colspan=2 id="submitCell">
-                <button id="submit">Submit</button>
-            </td>
-        </tr>
-
-        {% else %}
-        <tr>
-            <td colspan=2 id="submitCell">
-                <button id="submit">Submit Request</button>
-            </td>
-        </tr>
-
         {% endif %}
 
 	</table>

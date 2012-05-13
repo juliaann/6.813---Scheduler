@@ -20,6 +20,10 @@ div.container{
 	width:20px;
 }
 
+.submitButton{
+    width:100%;
+}
+
 .calendarImage{
 	height:30px;
 	width:30px;
