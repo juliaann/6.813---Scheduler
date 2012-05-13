@@ -3,6 +3,7 @@ body{
 }
 div.container{
 	width: 100%;
+	min-width: 800px;
 	margin:0px;
 }
 
@@ -69,7 +70,7 @@ div.container{
 	background-color: rgb(190,217, 239);
 	border-right-style: solid;
 	border-right-color: black;
-	border-right-width: 1px;
+	border-right-width: 3px;
 }
 
 #pendingHeader{
@@ -77,13 +78,14 @@ div.container{
 	top: 93px;
 	left: 115px;
 	z-index:20;
+	min-width: 800px;
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
 	background-color: rgb(190,217, 239);
 	border-bottom-style: solid;
 	border-bottom-color: black;
-	border-bottom-width: 1px;
+	border-bottom-width: 3px;
 }
 
 #calendarPanel{
@@ -120,6 +122,7 @@ div.container{
 	top: 0px;
 	left: 0px;
 	width: 100%;
+	min-width: 800px;
 	height: 90px;
 	padding:0px;
 	margin:0px;
@@ -132,7 +135,8 @@ div.container{
 	top: 55px;
 	background-color: #000066;
 	z-index:21;
-	width: 100%
+	width: 100%;
+	min-width: 800px;
 }
 
 #login_form{
@@ -238,13 +242,13 @@ a.nav:hover{
 }
 
 .dayButton{
-	background-color: #FFFF66;
+	background-color: Khaki;
 	height:39px;
 	width:46px;
 }
 
 .eveningButton{
-	background-color: LightBlue;
+	background-color: LightCyan;
 	height:39px;
 	width:46px;
 }
