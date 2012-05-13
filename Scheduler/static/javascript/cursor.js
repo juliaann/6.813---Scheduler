@@ -120,6 +120,11 @@ function addPendingMsg(shift){
 			cnt++;
 		}
 	}
+	var heightHeader = $('#header').height();
+	var heightPending = $('#pendingHeader').height();
+	var topCalendar = parseInt(heightHeader) + parseInt(heightPending) + 20;
+	$('#calendarPanel').offset({top: topCalendar});
+
 
 }
 
@@ -157,6 +162,13 @@ function deletePendingMsg(date, time, discipline){
 		    console.log(discipline);
 		    if(msgDate == formatDate(date) && msgTime.toLowerCase() == time && msgDiscipline == discipline){
 		    	table.deleteRow(i);
+		    	console.log("topCalendar 1");
+		    	var heightHeader = $('#header').height();
+		    	var heightPending = $('#pendingHeader').height();
+		    	var topCalendar = parseInt(heightHeader) + parseInt(heightPending) + 20;
+		    	console.log("topCalendar");
+		    	console.log(topCalendar);
+		    	$('#calendarPanel').offset({top: topCalendar});
 		    	console.log("deletedRow");
 
                 // Clear the border for the pending image, but only if there was no original shift scheduled
@@ -176,6 +188,8 @@ function deletePendingMsg(date, time, discipline){
         var id = date + (time == "day" ? "morning" : time);
         clearBorder(id);
     }   
+
+
 }
 
 function formatDate(date){
