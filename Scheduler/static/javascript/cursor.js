@@ -330,7 +330,7 @@ $(document).ready(function() {
     }
 
     // Add a border around the arrow button on the sidbar
-    addBorder("arrow");
+    addBorder("arrow", "#000000");
 });
 
 function radioButtonClicked(e) {
@@ -468,7 +468,13 @@ function setShiftImage(id, image) {
 //Given an element id and an image, sets the image src in the innerHTML
 function setPendingImage(id, image, add){
     var b = document.getElementById(id);
-    
+
+    console.log("In setPendingImage.....");
+    try {
+        console.log("Original image: " + getNameImage(origShifts[id][1]));
+    } catch (err) { console.log("No previous shift"); }
+    console.log("New image: " + image);    
+
     if (add) {
         // Set the image
         b.innerHTML = '<img class="calendarImage" src="' + image + '">';
@@ -482,17 +488,21 @@ function setPendingImage(id, image, add){
     // discipline)
     try {
         if (getNameImage(origShifts[id][1]) != image) {
-            addBorder(id);
+            addBorder(id, "#999999");
         }
-    } catch (err) { }
+    } catch (err) { 
+        // It will fail if there was no original image...in that case, add a
+        // border!
+        addBorder(id, "#999999") ;
+    }
 }
 
 // Adds a thick black border to the button specified by id
-function addBorder(id) {
+function addBorder(id, color) {
     var b = document.getElementById(id);
     b.style.borderWidth = "thick";
     b.style.borderStyle = "solid";
-    b.style.borderColor = "#000000";
+    b.style.borderColor = color; // black: #000000, gray: #CCCCCC
 }
 
 // Clears the border around a button
@@ -800,6 +810,7 @@ function shiftClicked(e) {
         discipline = getDisciplineFromImage(cursorName.slice(15));
 
         // Check if this is the same discipline that was already there
+        // (this code is probably not necessary now that disabling is in place)
         if (cursorName.slice(imagePath.length) == getDisciplineById(this.id)){ 
             console.log("Same discipline -- ignore click");       
             return; 
@@ -847,6 +858,9 @@ function shiftClicked(e) {
         		addPendingMsg(["Pending Add", date, time, discipline])
 
         	}else if(statusOfShift(date, time, discipline) != "Pending Add"){
+
+                //console.log("!!!!! Here !!!!!");
+
             	addShift(this.id, "Pending Add", discipline);
             	setPendingImage(this.id, cursorName + ".png", true);
         		curImage = document.getElementById(this.id).innerHTML;
@@ -905,7 +919,7 @@ function sidebarButtonClicked(e) {
     } catch(err) { } // catch error if not admin
 
     // Add a border to the recently-clicked button
-    addBorder(this.id);
+    addBorder(this.id, "#000000");
 
     // Update the body cursor style
     document.body.style.cursor = cursorStyle;
@@ -968,8 +982,15 @@ function sidebarButtonClicked(e) {
         // Disable it if necessary
         if (discIdx > 0 && discIdx < 6) {
             // Reverse because we're disabling it if false
+               
+/*            if (id == "2012-12-16morning") {
+                console.log(valid == false);
+                console.log(getDisciplineById(id));
+                console.log(getDisciplineById(id) == this.id);
+            }*/
+
             button.disabled = (valid == false) || getDisciplineById(id) == this.id;
-            if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
+            //if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
 
         // If it's the eraser, disable all shifts not scheduled
         } else if (discIdx == eraserIdx) {
