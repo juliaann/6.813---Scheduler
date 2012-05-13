@@ -254,6 +254,7 @@ $(document).ready(function() {
     //Add click listener to submit button
     $("#submit").click( function() {
 	console.log("submit");
+	$(window).unbind("beforeunload");
 	var subSch = confirm("Are you sure you want to submit this schedule?");
 	if (subSch == true){
 		console.log(instructorSchedule);
@@ -515,7 +516,7 @@ function setPendingImage(id, image, add){
 function addBorder(id, color) {
     var b = document.getElementById(id);
     b.style.borderWidth = "thick";
-    b.style.borderStyle = "solid";
+    b.style.borderStyle = "outset solid";
     b.style.borderColor = color; // black: #000000, gray: #CCCCCC
 }
 
