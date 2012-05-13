@@ -250,24 +250,28 @@ a.nav:hover{
 .defaultButton{
 	height:39px;
 	width:46px;
+	border: outset;
 }
 
 .dayButton{
 	background-color: Khaki;
 	height:39px;
 	width:46px;
+	border: outset;
 }
 
 .eveningButton{
 	background-color: LightCyan;
 	height:39px;
 	width:46px;
+	border: outset;
 }
 
 .nightButton{
 	background-color: Black;
 	height:39px;
 	width:46px;
+	border: outset;
 }
 
 #legend{
