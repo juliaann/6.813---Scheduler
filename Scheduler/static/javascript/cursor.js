@@ -11,6 +11,7 @@ var accepted;
 // Colors for borders
 sidebarBorderColor = "#000000";
 pendingBorderColor = "#999999";
+//pendingBorderColor = "#000099";
 
 // Useful mappings of disciplines to integers for validShifts -- see views.py
 // for the order: possible_shifts.append([shift_name, p.hasChildrensSki,
@@ -159,17 +160,21 @@ function deletePendingMsg(date, time, discipline){
 
                 // Clear the border for the pending image, but only if there was no original shift scheduled
                 var id = date + (time == "day" ? "morning" : time);
-                try {
-                    var randomvar = origShifts[id];
-                    console.log("There was a shift scheduled! Don't remove the border.");
-                } catch (err) { 
+                var origDiscipline = origShifts[id];
+                if (origDiscipline == undefined) {
+                    console.log("There was no shift scheduled! Remove the border.");
                     clearBorder(id);
                 }
 		    	return;
 		    }
 
 		}
-	}
+
+    // If the schedule has not yet been accepted, clear the border for sure!
+	} else {
+        var id = date + (time == "day" ? "morning" : time);
+        clearBorder(id);
+    }   
 }
 
 function formatDate(date){
@@ -191,6 +196,7 @@ function formatDate(date){
 //Set the initial images for the shifts that the instructor is scheduled for
 //Set message for pending shifts
 function loadInitialShifts(){
+    console.log(instructorSchedule);
     if (instructorSchedule != undefined){
         for (var s = 0; s < instructorSchedule.length; s++){
         	if (instructorSchedule[s][2] == "day"){
@@ -332,7 +338,8 @@ $(document).ready(function() {
             for (var sidx = 0; sidx < shifts.length; sidx++) {
                 try {
                     addShiftClickListener(date + shifts[sidx]);
-                    document.getElementById(date + shifts[sidx]).disabled = true;
+//                    document.getElementById(date + shifts[sidx]).disabled = true;
+                    setButtonDisabled(date + shifts[sidx], true);
                 } catch(err) { }
             }
         }
@@ -371,7 +378,7 @@ function radioButtonClicked(e) {
     var dayStr = date.substring(spaceIdx+1, commaIdx);
     var day = (parseInt(dayStr) < 10) ? "0" + parseInt(dayStr) : dayStr;
     var year = date.substring(commaIdx+2);
-    time = (time == "Day") ? "Morning" : time; // morning not day
+    time = (time == "Day") ? "Morning" : time; // morning, not day
     var id = year + "-" + month + "-" + day + time.toLowerCase();
 
     // If it's a pending Add, get the image and set the shift to that image
@@ -396,6 +403,7 @@ function radioButtonClicked(e) {
             // the accept nor reject radio button had ever been clicked
             // (for an Add, the discipline is encoded in the message)
             setPendingImage(id, imagePath + getNameImage(discipline), true);
+            addBorder(id, pendingBorderColor);
         }
     }
 
@@ -408,18 +416,24 @@ function radioButtonClicked(e) {
             // Clear the shift image
             setShiftImage(id, imagePath + getNameImage(discipline));
             setShiftOverlayImage(id, "/static/images/excused.png")
+
+            // Note that deleted shifts should be marked excused
             changeStatus(id, "Excused");
             clearBorder(id);
+            setButtonDisabled((document.getElementById(id)).disabled);
         } else if (this.value == "Reject") {
             // Reset to the original image
         	addShift(id, "Normal", discipline);
         	setShiftImage(id, imagePath + getNameImage(discipline));
             clearBorder(id);
+            setButtonDisabled((document.getElementyById(id)).disabled);
         } else if (this.value == "Clear") {
             // Revert back to the original view of the shift, as if neither
             // the accept nor reject radio button had ever been clicked
             // (for a Delete, this is just an empty pending)
             setPendingImage(id, imagePath + getNameImage(discipline), false);
+            addBorder(id, pendingBorderColor);
+            setButtonDisabled((document.getElementById(id)).disabled);
         }
     }
 }
@@ -526,6 +540,49 @@ function clearBorder(id) {
     b.style.borderWidth = null;
     b.style.borderStyle = null;
     b.style.borderColor = null;
+}
+
+// Wrapper for both enabling and disabling buttons!
+function setButtonDisabled(id, isDisabled) {
+    var b = document.getElementById(id);
+    b.disabled = isDisabled;
+    if (isDisabled) { disableButton(id); }
+    else { enableButton(id); }
+}
+
+function enableButton(id) {
+    var b = document.getElementById(id);
+
+    // If the width is "thick", it had a border
+    width = b.style.borderWidth;
+    if (id == "2012-12-16morning") { console.log("Border width: " + width); }
+    if (width == "thick" || width == "2px") {
+        addBorder(id, b.style.borderColor);
+    } else {
+        clearBorder(id);
+    }
+}
+
+function disableButton(id) {
+    var b = document.getElementById(id);
+
+    // Get the old border bits
+    var width = b.style.borderWidth;
+    var color = b.style.borderColor;
+    var style = b.style.borderStyle;
+
+    if (id == "2012-12-16morning") { console.log("(pre) Border width: " + width); }
+
+    // Set the style to none, then add in the color and width
+//    b.style.border = "none";
+    if (width == "thick" || width == "2px") {
+        b.style.borderWidth = "2px";
+        b.style.borderColor = color;
+        if (b.style.borderStyle == "outset solid") { b.style.borderStyle = "solid"; }
+    } else {
+        b.style.border = "none";
+    }
+//    if (id == "2012-12-16morning") { console.log("(post) Border width: " + width); }
 }
 
 // Given an element id, clear that shift in the innerHTML
@@ -761,7 +818,8 @@ function shiftClicked(e) {
         if (!hasDiscipline(this.id)) { return; }
 
     	if (isAdmin == "True"){
-    		deleteShift(this.id);	
+    		deleteShift(this.id);
+            clearBorder(this.id);	
     	}else{
     		console.log("delete");
     		curImage = document.getElementById(this.id).innerHTML;
@@ -769,7 +827,6 @@ function shiftClicked(e) {
     		var date = this.id.slice(0,10).toString();
     		var time = this.id.slice(10).toString();
     		var discipline = getDisciplineFromImage(curImage.substring(15, curImage.indexOf(".png")));
-
             var shiftStatus = statusOfShift(date, time, discipline);
     		console.log("status");
     		console.log(shiftStatus);
@@ -927,7 +984,9 @@ function shiftClicked(e) {
     else { return; }
 
     // Clicking on any shift a second time in a row doesn't do anything, so disable it
-    document.getElementById(this.id).disabled = true;
+//    document.getElementById(this.id).disabled = true;
+//    disableButton(this.id);
+    setButtonDisabled(this.id, true);
 }
 
 // It's not pretty, but it works.  I will keep trying to make it more 
@@ -1003,7 +1062,7 @@ function sidebarButtonClicked(e) {
     // that discipline for that shift -- for this, we need to know which
     // sidebar button was pressed
     var discIdx = 0;
-    if (this.id == adultSki) { discIdx = adultSkiIdx; }
+    if (this.id == adultSkiId) { discIdx = adultSkiIdx; }
     else if (this.id == adultBoardId) { discIdx = adultBoardIdx; }
     else if (this.id == childSkiId) { discIdx = childSkiIdx; }
     else if (this.id == childBoardId) { discIdx = childBoardIdx; }
@@ -1029,37 +1088,48 @@ function sidebarButtonClicked(e) {
             // Reverse because we're disabling it if false
                
             if (id == "2012-12-16morning") {
-                console.log(valid == false);
-                console.log(getDisciplineById(id));
-                console.log(getDisciplineById(id) == this.id);
+                console.log("Invalid: " + valid == false);
+                console.log("Discipline: " + getDisciplineById(id));
+                console.log("Discipline matches: " + getDisciplineById(id) == this.id);
+                console.log("Will disable: " + (valid == false) || getDisciplineById(id) == this.id);
             }
 
-            button.disabled = (valid == false) || getDisciplineById(id) == this.id;
+//            button.disabled = (valid == false) || getDisciplineById(id) == this.id;
+            setButtonDisabled(id, (valid == false) || getDisciplineById(id) == this.id);
             //if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
 
         // If it's the eraser, disable all shifts not scheduled
         } else if (discIdx == eraserIdx) {
-            button.disabled = !(hasDiscipline(id));
+//            button.disabled = !(hasDiscipline(id));
+            setButtonDisabled(id, !(hasDiscipline(id)));
 
         // If it's excuse, disable all shifts already excused or not scheduled
         } else if (discIdx == excusedIdx) {
-            button.disabled = !(hasDiscipline(id)) || (getStatus(id) == "Excused"); 
+//            button.disabled = !(hasDiscipline(id)) || (getStatus(id) == "Excused"); 
+            setButtonDisabled(id, !(hasDiscipline(id)) || (getStatus(id) == "Excused"));
 
         // If it's absent, disable all shifts already absent or not scheduled
         } else if (discIdx == absentIdx) {
-            button.disabled = !(hasDiscipline(id)) || (getStatus(id) == "Absent"); 
+//            button.disabled = !(hasDiscipline(id)) || (getStatus(id) == "Absent"); 
+            setButtonDisabled(id, !(hasDiscipline(id)) || (getStatus(id) == "Absent"));
 
         // If it's clear excused, disable all shifts not currently excused
         } else if (discIdx == clearExcusedIdx) {
-            button.disabled = getStatus(id) != "Excused";
+//            button.disabled = getStatus(id) != "Excused";
+            setButtonDisabled(id, getStatus(id) != "Excused");
 
         // If it's clear absent, disable all shifts not currently absent
         } else if (discIdx == clearAbsentIdx) {
-            button.disabled = getStatus(id) != "Absent";
- 
+//            button.disabled = getStatus(id) != "Absent";
+            setButtonDisabled(id, getStatus(id) != "Absent");    
+
         // In any other case, just don't disable the buttons
         } else {
-            button.disabled = false;
+//            button.disabled = false;
+            setButtonDisabled(id, true); // changed my mind
         }
+    
+//        if (button.disabled) { disableButton(id); }
+//        else { enableButton(id); }
     } 
 }
