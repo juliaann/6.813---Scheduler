@@ -1,3 +1,6 @@
+.container{
+	font-family: Georgia, Serif;
+}
 body{
 	background-color: rgb(240,250,255);
 }
@@ -23,7 +26,7 @@ div.container{
 .submitButton{
     width:100%;
     font-size:large;
-    font-family:"Times New Roman",Georgia,Serif;
+    font-family: Georgia,Serif;
     font-weight:bold;
 }
 
@@ -48,6 +51,7 @@ div.container{
 .buttonSpan{
 	height:39px;
 	width:46px;
+	
 }
 
 .blank{
