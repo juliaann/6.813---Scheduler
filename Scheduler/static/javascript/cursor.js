@@ -28,6 +28,11 @@ racing = "racing";
 // Boolean used to determine if any changes have been made
 var changesMade = false;
 
+// Warn users before they leave the page if changes have been made
+$(window).bind("beforeunload",function(event) {
+    if(changesMade) return "You have not submitted your changes.";
+});
+
 // Arrays of the sidebar buttons for for loops -- note: these must remain
 // in this order -- for loops should be surrounded in a try/catch block
 // and so will catch errors and stop as soon as they hit the admin-only buttons
