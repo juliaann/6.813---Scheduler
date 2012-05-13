@@ -57,7 +57,8 @@ var sidebarIds = [adultSkiId, adultBoardId, childSkiId, childBoardId, racingId,
 
 // Keep track of the original state of each pending change
 var pendingChanges = new Object();
-var origShifts = new Object();
+var origShifts = new Object(); // id -> [status, discipline]
+var origSchedule; // [status, date, time, discipline]
 
 // Adds a click listener to the element (in the sidebar panel) specified by id
 function addSidebarClickListener(id) {
@@ -196,6 +197,7 @@ function formatDate(date){
 //Set the initial images for the shifts that the instructor is scheduled for
 //Set message for pending shifts
 function loadInitialShifts(){
+//    origSchedule = [];
     console.log(instructorSchedule);
     if (instructorSchedule != undefined){
         for (var s = 0; s < instructorSchedule.length; s++){
@@ -220,7 +222,10 @@ function loadInitialShifts(){
         	}
 
             // Add to the original shifts 
-            origShifts[id] = [instructorSchedule[s][0], instructorSchedule[s][3]] // id -> [status, discipline]
+//            origSchedule.push(instructorSchedule[s]);
+            if (instructorSchedule[s][0] == "Normal") {
+                origShifts[id] = [instructorSchedule[s][0], instructorSchedule[s][3]]
+            }
         }
 
         console.log("Loaded original shifts:");
@@ -419,12 +424,28 @@ function radioButtonClicked(e) {
             deleteShift(id);
             clearBorder(id);
             setButtonDisabled(id, (document.getElementById(id)).disabled);
+
+
+            // If there was another shift there before, put it back
+            var origShift = origShifts[id];
+            if (origShift != undefined) {
+                addShift(id, "Normal", origShift[1]);
+                setShiftImage(id, imagePath + getNameImage(origShift[1]));
+            }
         } else if (this.value == "Clear") {
+            var origShift = origShifts[id];
+            if (origShift != undefined) { 
+            }
+
+
             // Revert back to the original view of the shift, as if neither
             // the accept nor reject radio button had ever been clicked
             // (for an Add, the discipline is encoded in the message)
-            setPendingImage(id, imagePath + getNameImage(discipline), true);
+//            setPendingImage(id, imagePath + getNameImage(discipline), true);
+            setShiftImage(id, imagePath + getNameImage(discipline));
             addBorder(id, pendingBorderColor);
+            document.getElementById(id).style.borderWidth = "thick";
+            console.log(document.getElementById(id).style.borderWidth);
             setButtonDisabled(id, (document.getElementById(id)).disabled);
         }
     }
@@ -602,7 +623,8 @@ function disableButton(id) {
         b.style.borderColor = color;
         if (b.style.borderStyle == "outset solid") { b.style.borderStyle = "solid"; }
     } else {
-        b.style.border = "none";
+//        b.style.border = "none";
+        b.style.borderStyle = "none";
     }
 //    if (id == "2012-12-16morning") { console.log("(post) Border width: " + width); }
 }
