@@ -246,6 +246,7 @@ $(document).ready(function() {
     //Add click listener to submit button
     $("#submit").click( function() {
 	console.log("submit");
+	$(window).unbind("beforeunload");
 	var subSch = confirm("Are you sure you want to submit this schedule?");
 	if (subSch == true){
 		console.log(instructorSchedule);
