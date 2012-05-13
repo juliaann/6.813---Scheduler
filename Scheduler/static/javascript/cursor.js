@@ -17,13 +17,22 @@ childSkiIdx = 1;
 childBoardIdx = 2;
 racingIdx = 5;
 eraserIdx = 6; // not part of the list, but useful for disabling buttons
+excusedIdx = 7;
+absentIdx = 8;
+clearExcusedIdx = 9;
+clearAbsentIdx = 10;
 
 // Used for sidebar button ids and image names
-adultSki = "adultSki";
-adultBoard = "adultSnowboard";
-childSki = "childrenSki";
-childBoard = "childrenSnowboard";
-racing = "racing";
+adultSkiId = "adultSki";
+adultBoardId = "adultSnowboard";
+childSkiId = "childrenSki";
+childBoardId = "childrenSnowboard";
+racingId = "racing";
+eraserId = "eraser";
+excusedId = "excused";
+absentId = "absent";
+clearExcusedId = "excuseCancel";
+clearAbsentId = "absentCancel";
 
 // Boolean used to determine if any changes have been made
 var changesMade = false;
@@ -32,7 +41,7 @@ var changesMade = false;
 // in this order -- for loops should be surrounded in a try/catch block
 // and so will catch errors and stop as soon as they hit the admin-only buttons
 // so those should all be last
-var sidebarIds = [adultSki, adultBoard, childSki, childBoard, racing,
+var sidebarIds = [adultSkiId, adultBoardId, childSkiId, childBoardId, racingId,
                   "eraser", "arrow", "excused", "absent", 
                   "excuseCancel", "absentCancel"];
 
@@ -293,7 +302,7 @@ $(document).ready(function() {
         }
     } catch(err) { }
 
-    // Add click listeners to the shift buttons
+    // Add click listeners to the shift buttons, and start them all out disabled
     var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
     for (var midx = 0; midx < yearMonths.length; midx++) {
         var yearMonth = yearMonths[midx];
@@ -309,6 +318,7 @@ $(document).ready(function() {
             for (var sidx = 0; sidx < shifts.length; sidx++) {
                 try {
                     addShiftClickListener(date + shifts[sidx]);
+                    document.getElementById(date + shifts[sidx]).disabled = true;
                 } catch(err) { }
             }
         }
@@ -533,16 +543,16 @@ function hasDiscipline(id) {
 // Get the discipline that's currently stored for a given shift
 function getDisciplineById(id) {
     var b = document.getElementById(id);
-    if (b.innerHTML.indexOf(adultSki) != -1) { 
-        return adultSki; 
-    } else if (b.innerHTML.indexOf(adultBoard) != -1) {
-        return adultBoard;
-    } else if (b.innerHTML.indexOf(childSki) != -1) {
-        return childSki;
-    } else if (b.innerHTML.indexOf(childBoard) != -1) {
-        return childBoard;
-    } else if (b.innerHTML.indexOf(racing) != -1) {
-        return racing;
+    if (b.innerHTML.indexOf(adultSkiId) != -1) { 
+        return adultSkiId; 
+    } else if (b.innerHTML.indexOf(adultBoardId) != -1) {
+        return adultBoardId;
+    } else if (b.innerHTML.indexOf(childSkiId) != -1) {
+        return childSkiId;
+    } else if (b.innerHTML.indexOf(childBoardId) != -1) {
+        return childBoardId;
+    } else if (b.innerHTML.indexOf(racingId) != -1) {
+        return racingId;
     } else { return "none"; }
 }
 
@@ -610,6 +620,19 @@ function changeStatus(id, newStatus){
 		}
 	}
 	return false;
+}
+
+// Returns "Excused", "Absent", "Normal", or "None" (if it couldn't find the shift)
+function getStatus(id) {
+    var date = id.slice(0, 10);
+    var time = id.slice(10);
+    time = (time == "morning") ? "day" : time;
+    for (var i = 0; i < instructorSchedule.length; i++) {
+        if (instructorSchedule[i][1] == date && instructorSchedule[i][2] == time) {
+            return instructorSchedule[i][0];
+        }
+    }
+    return "None"
 }
 
 function getDisciplineFromImage(imageName){
@@ -836,6 +859,11 @@ function shiftClicked(e) {
             }
         }   
     }
+
+    else { return; }
+
+    // Clicking on any shift a second time in a row doesn't do anything, so disable it
+    document.getElementById(this.id).disabled = true;
 }
 
 // It's not pretty, but it works.  I will keep trying to make it more 
@@ -912,11 +940,15 @@ function sidebarButtonClicked(e) {
     // sidebar button was pressed
     var discIdx = 0;
     if (this.id == adultSki) { discIdx = adultSkiIdx; }
-    else if (this.id == adultBoard) { discIdx = adultBoardIdx; }
-    else if (this.id == childSki) { discIdx = childSkiIdx; }
-    else if (this.id == childBoard) { discIdx = childBoardIdx; }
-    else if (this.id == racing) { discIdx = racingIdx; }
-    else if (this.id == "eraser") { discIdx = eraserIdx; }
+    else if (this.id == adultBoardId) { discIdx = adultBoardIdx; }
+    else if (this.id == childSkiId) { discIdx = childSkiIdx; }
+    else if (this.id == childBoardId) { discIdx = childBoardIdx; }
+    else if (this.id == racingId) { discIdx = racingIdx; }
+    else if (this.id == eraserId) { discIdx = eraserIdx; }
+    else if (this.id == excusedId) { discIdx = excusedIdx; }
+    else if (this.id == absentId) { discIdx = absentIdx; }
+    else if (this.id == clearExcusedId) { discIdx = clearExcusedIdx; }
+    else if (this.id == clearAbsentId) { discIdx = clearAbsentIdx; }
 
     for (var validShiftIdx = 0; validShiftIdx < validShifts.length; validShiftIdx++) {
         var shift = validShifts[validShiftIdx];
@@ -935,8 +967,26 @@ function sidebarButtonClicked(e) {
             if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
 
         // If it's the eraser, disable all shifts not scheduled
-        } else if (discIdx == 6) {
+        } else if (discIdx == eraserIdx) {
             button.disabled = !(hasDiscipline(id));
+
+        // If it's excuse, disable all shifts already excused or not scheduled
+        } else if (discIdx == excusedIdx) {
+            button.disabled = !(hasDiscipline(id)) || (getStatus(id) == "Excused"); 
+
+        // If it's absent, disable all shifts already absent or not scheduled
+        } else if (discIdx == absentIdx) {
+            button.disabled = !(hasDiscipline(id)) || (getStatus(id) == "Absent"); 
+
+        // If it's clear excused, disable all shifts not currently excused
+        } else if (discIdx == clearExcusedIdx) {
+            button.disabled = getStatus(id) != "Excused";
+
+        // If it's clear absent, disable all shifts not currently absent
+        } else if (discIdx == clearAbsentIdx) {
+            button.disabled = getStatus(id) != "Absent";
+ 
+        // In any other case, just don't disable the buttons
         } else {
             button.disabled = false;
         }
