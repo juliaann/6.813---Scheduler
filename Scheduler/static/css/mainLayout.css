@@ -22,6 +22,9 @@ div.container{
 
 .submitButton{
     width:100%;
+    font-size:large;
+    font-family:"Times New Roman",Georgia,Serif;
+    font-weight:bold;
 }
 
 .calendarImage{
