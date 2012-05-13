@@ -414,7 +414,8 @@ function radioButtonClicked(e) {
     var monthToNumber = {"Dec.":"12", "Jan.":"01", "Feb.":"02", "Mar.":"03"};
     var month = monthToNumber[monthStr];
     var dayStr = date.substring(spaceIdx+1, commaIdx);
-    var day = (parseInt(dayStr) < 10) ? "0" + parseInt(dayStr) : dayStr;
+//    var day = (parseInt(dayStr) < 10) ? "0" + parseInt(dayStr) : dayStr;
+    var day = dayStr; // the above is no longer an issue
     var year = date.substring(commaIdx+2);
     time = (time == "Day") ? "Morning" : time; // morning, not day
     var id = year + "-" + month + "-" + day + time.toLowerCase();
@@ -468,6 +469,7 @@ function radioButtonClicked(e) {
     else if (status == "Delete") {
         if (this.value == "Accept") {
             // Store the original shift value, if one exists
+            console.log("DELETE-ACCEPT id: " + id);
             pendingChanges[id] = document.getElementById(id).innerHTML;
 
             // Clear the shift image
