@@ -502,7 +502,7 @@ function setPendingImage(id, image, add){
 function addBorder(id, color) {
     var b = document.getElementById(id);
     b.style.borderWidth = "thick";
-    b.style.borderStyle = "solid";
+    b.style.borderStyle = "outset solid";
     b.style.borderColor = color; // black: #000000, gray: #CCCCCC
 }
 
