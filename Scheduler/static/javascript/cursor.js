@@ -243,6 +243,27 @@ function loadInitialShifts(){
             }
         }
     }
+
+    // After all initial shifts are loaded, set each button to disabled
+    var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
+    for (var midx = 0; midx < yearMonths.length; midx++) {
+        var yearMonth = yearMonths[midx];
+
+        for (var day = 1; day <= 31; day++) {
+            var date = yearMonth + "-" + day;
+            
+            if (day < 10) {
+                date = yearMonth + "-0" + day;
+            }
+
+            var shifts = ["morning", "evening", "night"];
+            for (var sidx = 0; sidx < shifts.length; sidx++) {
+                try {
+                    setButtonDisabled(date + shifts[sidx], true);
+                } catch(err) { }
+            }
+        }
+    }
 }
 
 function submitSuccess(){
@@ -322,7 +343,7 @@ $(document).ready(function() {
         }
     } catch(err) { }
 
-    // Add click listeners to the shift buttons, and start them all out disabled
+    // Add click listeners to the shift buttons
     var yearMonths = ["2012-12", "2013-01", "2013-02", "2013-03"];
     for (var midx = 0; midx < yearMonths.length; midx++) {
         var yearMonth = yearMonths[midx];
@@ -338,8 +359,6 @@ $(document).ready(function() {
             for (var sidx = 0; sidx < shifts.length; sidx++) {
                 try {
                     addShiftClickListener(date + shifts[sidx]);
-//                    document.getElementById(date + shifts[sidx]).disabled = true;
-                    setButtonDisabled(date + shifts[sidx], true);
                 } catch(err) { }
             }
         }
@@ -390,6 +409,7 @@ function radioButtonClicked(e) {
         	addShift(id, "Normal", discipline);
         	setShiftImage(id, imagePath + getNameImage(discipline));
             clearBorder(id);
+            setButtonDisabled(id, (document.getElementById(id)).disabled);
 
         } else if (this.value == "Reject") {
             pendingChanges[id] = document.getElementById(id).innerHTML; // probably not necessary...
@@ -398,12 +418,14 @@ function radioButtonClicked(e) {
             // clear the shift
             deleteShift(id);
             clearBorder(id);
+            setButtonDisabled(id, (document.getElementById(id)).disabled);
         } else if (this.value == "Clear") {
             // Revert back to the original view of the shift, as if neither
             // the accept nor reject radio button had ever been clicked
             // (for an Add, the discipline is encoded in the message)
             setPendingImage(id, imagePath + getNameImage(discipline), true);
             addBorder(id, pendingBorderColor);
+            setButtonDisabled(id, (document.getElementById(id)).disabled);
         }
     }
 
@@ -420,20 +442,20 @@ function radioButtonClicked(e) {
             // Note that deleted shifts should be marked excused
             changeStatus(id, "Excused");
             clearBorder(id);
-            setButtonDisabled((document.getElementById(id)).disabled);
+            setButtonDisabled(id, (document.getElementById(id)).disabled);
         } else if (this.value == "Reject") {
             // Reset to the original image
         	addShift(id, "Normal", discipline);
         	setShiftImage(id, imagePath + getNameImage(discipline));
             clearBorder(id);
-            setButtonDisabled((document.getElementyById(id)).disabled);
+            setButtonDisabled(id, (document.getElementById(id)).disabled);;
         } else if (this.value == "Clear") {
             // Revert back to the original view of the shift, as if neither
             // the accept nor reject radio button had ever been clicked
             // (for a Delete, this is just an empty pending)
             setPendingImage(id, imagePath + getNameImage(discipline), false);
             addBorder(id, pendingBorderColor);
-            setButtonDisabled((document.getElementById(id)).disabled);
+            setButtonDisabled(id, (document.getElementById(id)).disabled);
         }
     }
 }
@@ -910,6 +932,7 @@ function shiftClicked(e) {
         	//console.log(statusOfShift);
     		var date = this.id.slice(0,10).toString();
     		var time = this.id.slice(10).toString();
+
             shiftStatus = statusOfShift(date, time, discipline);
             console.log("Shift status: " + shiftStatus);
 
