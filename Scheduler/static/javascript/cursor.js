@@ -2,11 +2,15 @@
 var cursorImage = "";
 var imagePath = "/static/images/";
 var isAdmin;
-//[status, date, time, discipline]
+//[status, date, time, discipline]; time: day/evening/night (NOT morning!)
 var instructorSchedule;
 var validShifts; // [id, adultSki, adultBoard, childSki, childBoard, race] (string, bool x 5)
 var cnt = 0;
 var accepted;
+
+// Colors for borders
+sidebarBorderColor = "#000000";
+pendingBorderColor = "#999999";
 
 // Useful mappings of disciplines to integers for validShifts -- see views.py
 // for the order: possible_shifts.append([shift_name, p.hasChildrensSki,
@@ -131,35 +135,39 @@ function deletePendingMsg(date, time, discipline){
 		for(var i = 0, row; row = table.rows[i]; i++){
 			console.log("row");
 			console.log(row);
-			    msg = row.cells[0].innerHTML;
+		    msg = row.cells[0].innerHTML;
 
-			    // Get the text and parse out the discipline, time, date, and status
-			    var msgDiscipline = msg.substring(0, msg.indexOf(":"));
-			    msg = msg.substring(msg.indexOf(":")+2); // ignore ": "
+		    // Get the text and parse out the discipline, time, date, and status
+		    var msgDiscipline = msg.substring(0, msg.indexOf(":"));
+		    msg = msg.substring(msg.indexOf(":")+2); // ignore ": "
 
-			    var msgTime = msg.substring(0, msg.indexOf(" "));
-			    msg = msg.substring(msg.indexOf(" ")+4); // ignore " on "
+		    var msgTime = msg.substring(0, msg.indexOf(" "));
+		    msg = msg.substring(msg.indexOf(" ")+4); // ignore " on "
 
-			    var msgDate = msg.substring(0, msg.indexOf(" is"));
-			    var status = msg.substring(msg.indexOf(" is")+12);
-				
-			    console.log(msgDate);
-			    console.log(msgTime);
-			    console.log(msgDiscipline);
-			    console.log(formatDate(date));
-			    console.log(time);
-			    console.log(discipline);
-			    if(msgDate == formatDate(date) && msgTime.toLowerCase() == time && msgDiscipline == discipline){
-			    	table.deleteRow(i);
-			    	console.log("deletedRow");
+		    var msgDate = msg.substring(0, msg.indexOf(" is"));
+		    var status = msg.substring(msg.indexOf(" is")+12);
+			
+		    console.log(msgDate);
+		    console.log(msgTime);
+		    console.log(msgDiscipline);
+		    console.log(formatDate(date));
+		    console.log(time);
+		    console.log(discipline);
+		    if(msgDate == formatDate(date) && msgTime.toLowerCase() == time && msgDiscipline == discipline){
+		    	table.deleteRow(i);
+		    	console.log("deletedRow");
 
-                    // Clear the border for the pending image
-                    var id = date + (time == "day" ? "morning" : time);
+                // Clear the border for the pending image, but only if there was no original shift scheduled
+                var id = date + (time == "day" ? "morning" : time);
+                try {
+                    var randomvar = origShifts[id];
+                    console.log("There was a shift scheduled! Don't remove the border.");
+                } catch (err) { 
                     clearBorder(id);
+                }
+		    	return;
+		    }
 
-			    	return;
-			    }
-	
 		}
 	}
 }
@@ -188,7 +196,7 @@ function loadInitialShifts(){
         	if (instructorSchedule[s][2] == "day"){
         		var id = instructorSchedule[s][1] + "morning";
         	}else{
-        		var id = instructorSchedule[s][1] + instructorSchedule[s][2]
+        		var id = instructorSchedule[s][1] + instructorSchedule[s][2];
         	}
         	if (instructorSchedule[s][0] == "Pending Add"){
         		setPendingImage(id, imagePath + getNameImage(instructorSchedule[s][3]), true);
@@ -330,7 +338,7 @@ $(document).ready(function() {
     }
 
     // Add a border around the arrow button on the sidbar
-    addBorder("arrow", "#000000");
+    addBorder("arrow", sidebarBorderColor);
 });
 
 function radioButtonClicked(e) {
@@ -470,10 +478,14 @@ function setPendingImage(id, image, add){
     var b = document.getElementById(id);
 
     console.log("In setPendingImage.....");
-    try {
-        console.log("Original image: " + getNameImage(origShifts[id][1]));
-    } catch (err) { console.log("No previous shift"); }
-    console.log("New image: " + image);    
+    console.log(origShifts);
+    console.log("id, image: " + id + ", " + image);
+    if (add) {
+        try {
+            console.log("Original image: " + imagePath + getNameImage(origShifts[id][1]));
+        } catch (err) { console.log("No previous shift"); }
+        console.log("New image:      " + image);    
+    }
 
     if (add) {
         // Set the image
@@ -487,13 +499,15 @@ function setPendingImage(id, image, add){
     // Add a border to the button (if the change is different from the original
     // discipline)
     try {
-        if (getNameImage(origShifts[id][1]) != image) {
-            addBorder(id, "#999999");
+        if (imagePath + getNameImage(origShifts[id][1]) != image) {
+            addBorder(id, pendingBorderColor);
+        } else {
+            clearBorder(id);
         }
     } catch (err) { 
         // It will fail if there was no original image...in that case, add a
         // border!
-        addBorder(id, "#999999") ;
+        addBorder(id, pendingBorderColor);
     }
 }
 
@@ -571,6 +585,15 @@ function getDisciplineById(id) {
     } else { return "none"; }
 }
 
+function getCapitalizedDiscipline(discipline) {
+    if (discipline == adultSkiId) { return "Adult Ski"; }
+    else if (discipline == adultBoardId) { return "Adult Board"; }
+    else if (discipline == childSkiId) { return "Child Ski"; }
+    else if (discipline == childBoardId) { return "Child Board"; }
+    else if (discipline == racingId) { return "Race"; }
+    else { return null; }
+}
+
 function deleteShift(id){
 	console.log("in delete shift");
 	var date = id.slice(0,10);
@@ -597,7 +620,7 @@ function deleteShift(id){
 			instructorSchedule.push(tempSch[i]);
 		}
 
-        else { console.log("ignoring: " + tempSch[i]); }
+        else { console.log("removing: " + tempSch[i]); }
 
 	}
 	console.log("end of delete shift");
@@ -669,7 +692,7 @@ function getDisciplineFromImage(imageName){
 
 //Returns the status of the shift. Returns None if it doesn't exist.
 function statusOfShift(date, time, discipline){
-	console.log("statusOfShift");
+	console.log("In statusOfShift");
 	console.log(date);
 	console.log(time);
 	console.log(discipline);
@@ -745,22 +768,26 @@ function shiftClicked(e) {
     		var date = this.id.slice(0,10).toString();
     		var time = this.id.slice(10).toString();
     		var discipline = getDisciplineFromImage(curImage.substring(15, curImage.indexOf(".png")));
+
+            var shiftStatus = statusOfShift(date, time, discipline);
     		console.log("status");
-    		console.log(statusOfShift(date, time, discipline));
-    		if(statusOfShift(date, time, discipline) == "Pending Add"){
+    		console.log(shiftStatus);
+    		if(shiftStatus == "Pending Add"){
     			console.log("pending add exists");
     			console.log(this.id);
     			deleteShift(this.id);
     			console.log("call pending delete");
     			deletePendingMsg(date, time, discipline);
     			console.log(instructorSchedule);
-    		}else if(statusOfShift(date, time, discipline) != "Pending Delete"){
+    		}else if(shiftStatus != "Pending Delete"){
     			console.log("no pending delete exists");
     			console.log(this.id)
     			changeStatus(this.id, "Pending Delete");
 	    		clearShiftImage(this.id);
 	    		setPendingImage(this.id, curImage, false);
-	    		addPendingMsg(["Pending Delete", date, time, discipline])
+
+                time = (time == "morning" ? "day" : time); // make sure the pending message says "Day" not "Morning"
+	    		addPendingMsg(["Pending Delete", date, time, discipline]);
     		}
 	    		
     	}
@@ -822,14 +849,21 @@ function shiftClicked(e) {
         	setShiftImage(this.id, cursorName + ".png");
         }else{
         	console.log("Add Status of shift");
-        	console.log(statusOfShift);
+        	//console.log(statusOfShift);
     		var date = this.id.slice(0,10).toString();
     		var time = this.id.slice(10).toString();
-        	if(statusOfShift(date, time, discipline) == "Pending Delete"){
+            shiftStatus = statusOfShift(date, time, discipline);
+            console.log("Shift status: " + shiftStatus);
+
+        	if(shiftStatus == "Pending Delete"){
         		console.log("this has a pending delete");
             	deleteShift(this.id);
             	addShift(this.id, "Normal", discipline);
-            	setShiftImage(this.id, cursorName + ".png");
+
+                console.log(origShifts);
+                console.log(discipline);
+                setPendingImage(this.id, cursorName + ".png", true);
+//            	setShiftImage(this.id, cursorName + ".png");
         		var date = this.id.slice(0,10);
         		var time = this.id.slice(10);
             	deletePendingMsg(date, time, discipline);
@@ -837,6 +871,8 @@ function shiftClicked(e) {
             // If there was a pending add for a different discipline but the
             // same shift
             } else if (disciplineOfPendingAdd(date, time) != "None") {
+
+                console.log("Replacing old pending message for this shift...");
 
                 // Remove that pending add
                 oldDiscipline = disciplineOfPendingAdd(date, time);
@@ -849,18 +885,26 @@ function shiftClicked(e) {
                 addShift(this.id, "Pending Add", discipline);
             	setPendingImage(this.id, cursorName + ".png", true);
         		curImage = document.getElementById(this.id).innerHTML;
-        		curImage = curImage.substring(32, curImage.indexOf(">"));
+        		curImage = curImage.substring(32, curImage.indexOf("\">"));
         		var date = this.id.slice(0,10);
         		var time = this.id.slice(10);
         		var discipline = getDisciplineFromImage(curImage.substring(15, curImage.indexOf(".png")));
-	    		if (time == "morning") { time = "day"; }
-	    		if (discipline == "Racing") { discipline = "Race"; 	}
-        		addPendingMsg(["Pending Add", date, time, discipline])
 
-        	}else if(statusOfShift(date, time, discipline) != "Pending Add"){
+                // Only actually replace the pending message if this new
+                // discipline is not the original
+                var origImage = null;
+                try {
+                    origImage = imagePath + getNameImage(origShifts[date+time][1]);
+                } catch (err) { }
+                console.log(origImage);
+                console.log(curImage);
+                if (origImage == null || origImage != curImage) {
+	        		if (time == "morning") { time = "day"; }
+	        		if (discipline == "Racing") { discipline = "Race"; 	}
+            		addPendingMsg(["Pending Add", date, time, discipline]);
+                }
 
-                //console.log("!!!!! Here !!!!!");
-
+        	}else if(shiftStatus != "Pending Add"){
             	addShift(this.id, "Pending Add", discipline);
             	setPendingImage(this.id, cursorName + ".png", true);
         		curImage = document.getElementById(this.id).innerHTML;
@@ -919,7 +963,7 @@ function sidebarButtonClicked(e) {
     } catch(err) { } // catch error if not admin
 
     // Add a border to the recently-clicked button
-    addBorder(this.id, "#000000");
+    addBorder(this.id, sidebarBorderColor);
 
     // Update the body cursor style
     document.body.style.cursor = cursorStyle;
@@ -983,11 +1027,11 @@ function sidebarButtonClicked(e) {
         if (discIdx > 0 && discIdx < 6) {
             // Reverse because we're disabling it if false
                
-/*            if (id == "2012-12-16morning") {
+            if (id == "2012-12-16morning") {
                 console.log(valid == false);
                 console.log(getDisciplineById(id));
                 console.log(getDisciplineById(id) == this.id);
-            }*/
+            }
 
             button.disabled = (valid == false) || getDisciplineById(id) == this.id;
             //if (!shift[discIdx]) { console.log("button " + id + " disabled"); }
