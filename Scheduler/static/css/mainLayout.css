@@ -74,7 +74,7 @@ div.container{
 	position: fixed;
 	top: 93px;
 	padding-top: 1%;
-	width: 115px;
+	width:120px;
 	left: 0px;
 	height: 100%;
 	z-index: 2;
@@ -87,7 +87,7 @@ div.container{
 #pendingHeader{
 	position: fixed;
 	top: 93px;
-	left: 115px;
+	left: 120px;
 	z-index:20;
 	min-width: 800px;
 	width: 100%;
@@ -102,7 +102,7 @@ div.container{
 #calendarPanel{
 	position: absolute;
 	margin: 1%;
-	left: 115px;
+	left: 120px;
 	top: 20px;
 	z-index: 1;
 }
